@@ -101,8 +101,8 @@ def main() -> None:
         BASE_MODEL,
         quantization_config=bnb_config,
         device_map="auto",
-        torch_dtype=torch.bfloat16,
-        attn_implementation="flash_attention_2",
+        dtype=torch.bfloat16,
+        attn_implementation="sdpa",
     )
 
     # LoRA config
@@ -131,7 +131,6 @@ def main() -> None:
         learning_rate=LEARNING_RATE,
         lr_scheduler_type="cosine",
         warmup_ratio=0.1,
-        max_seq_length=MAX_SEQ_LENGTH,
         logging_steps=5,
         eval_strategy="steps",
         eval_steps=20,
@@ -174,3 +173,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+# v3 sdpa fix
