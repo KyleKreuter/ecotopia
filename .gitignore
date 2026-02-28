@@ -28,8 +28,13 @@ checkpoints/
 node_modules/
 npm-debug.log*
 
+# Audio
+audio/
+*.mp3
+
 # IDE
 .idea/
+*.iml
 .vscode/
 *.swp
 *.swo
