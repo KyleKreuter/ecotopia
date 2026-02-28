@@ -6,7 +6,7 @@ import time
 import wandb
 from mistralai import Mistral
 
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "kUHPWPp4ANcQ9V823SeJWLBLkoSsXHjj")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 BASE_MODEL = "mistral-small-latest"
 WANDB_PROJECT = "hackathon-london-nolan-2026"
 

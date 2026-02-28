@@ -42,7 +42,7 @@ def upload_model_artifact(model_name: str, hf_repo: str) -> None:
 if __name__ == "__main__":
     os.environ.setdefault(
         "WANDB_API_KEY",
-        "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",
+        "",
     )
 
     upload_model_artifact(
