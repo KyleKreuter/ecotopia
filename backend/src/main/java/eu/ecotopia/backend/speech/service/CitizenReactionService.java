@@ -14,6 +14,8 @@ import eu.ecotopia.backend.speech.model.AiExtractionResponse;
 import eu.ecotopia.backend.speech.model.AiPromise;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -30,6 +32,9 @@ public class CitizenReactionService {
 
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
+
+    @Value("${ecotopia.ai.citizen-model:}")
+    private String citizenModel;
 
     public CitizenReactionService(ChatClient.Builder chatClientBuilder, ObjectMapper objectMapper) {
         this.chatClient = chatClientBuilder.build();
@@ -52,11 +57,15 @@ public class CitizenReactionService {
         log.info("Generating citizen reactions for game {} round {}", game.getId(), game.getCurrentRound());
         log.debug("System prompt length: {} chars", systemPrompt.length());
 
-        String response = chatClient.prompt()
+        var requestSpec = chatClient.prompt()
                 .system(systemPrompt)
-                .user(userPrompt)
-                .call()
-                .content();
+                .user(userPrompt);
+
+        if (citizenModel != null && !citizenModel.isBlank()) {
+            requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(citizenModel).build());
+        }
+
+        String response = requestSpec.call().content();
 
         log.debug("Raw AI response for citizen reactions: {}", response);
 
