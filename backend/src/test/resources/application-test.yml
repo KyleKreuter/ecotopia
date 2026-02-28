@@ -7,5 +7,9 @@ spring:
       ddl-auto: create-drop
     show-sql: false
   ai:
-    mistralai:
+    openai:
       api-key: test-key
+      base-url: https://api-inference.huggingface.co/v1
+      chat:
+        options:
+          model: test-model
