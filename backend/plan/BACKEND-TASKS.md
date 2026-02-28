@@ -74,34 +74,34 @@
 
 ---
 
-## Phase 3: AI Integration (Mistral AI via Spring AI)
+## Phase 3: AI Integration (HuggingFace via Spring AI) ✅
 
 ### 3.1 Speech Processing
-- [ ] `SpeechService` — Accept player speech, build context (round history, citizens, promises, actions), send to Mistral AI
+- [x] `SpeechService` — Accept player speech, build context (round history, citizens, promises, actions), send to HuggingFace AI
 
 ### 3.2 Promise Extraction
-- [ ] `PromiseService` — AI prompt that extracts promises from free text
+- [x] `PromiseExtractionService` — AI prompt that extracts promises from free text
   - Explicit: "I promise...", "I guarantee..."
   - Implicit: "The forest stays", "No more factories"
   - Citizen-related: "Oleg, I'll find you a job"
   - Extract deadlines when mentioned
 
 ### 3.3 Contradiction Detection
-- [ ] `ContradictionService` — Compare current actions vs. previous statements
-- [ ] Detect broken promises and update status
+- [x] `ContradictionDetectionService` — Compare current actions vs. previous statements
+- [x] Detect broken promises and update status
 
 ### 3.4 Generate Citizen Reactions
-- [ ] AI generates in-character reactions for each citizen (core + dynamic)
-- [ ] Context: personality, approval, past interactions, current actions
-- [ ] Sarah quotes the player verbatim on broken promises
-- [ ] On double-spawns (e.g., Oleg + Lena), AI generates interactions between the two citizens
+- [x] AI generates in-character reactions for each citizen (core + dynamic)
+- [x] Context: personality, approval, past interactions, current actions
+- [x] Sarah quotes the player verbatim on broken promises
+- [x] On double-spawns (e.g., Oleg + Lena), AI generates interactions between the two citizens
 
 ### ~~3.5 Create Dynamic Citizens~~ (SKIPPED — hardcoded citizens are sufficient for hackathon)
 
 ### 3.5 Prompt Engineering (was 3.6)
-- [ ] Design system prompts for each AI call
-- [ ] Context management: Entire game history must fit into the prompt (round history, all speeches, all promises)
-- [ ] Structured output: Parse AI responses as JSON (approval changes, new promises, citizen texts)
+- [x] Design system prompts for each AI call
+- [x] Context management: Entire game history must fit into the prompt (round history, all speeches, all promises)
+- [x] Structured output: Parse AI responses as JSON (approval changes, new promises, citizen texts)
 
 ---
 
