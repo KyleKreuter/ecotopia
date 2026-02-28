@@ -58,6 +58,7 @@ def load_data_from_hub() -> tuple[Dataset, Dataset]:
         data_dir = Path("./data")
 
     def load_jsonl(filepath: Path) -> list[dict]:
+        """Load examples from a JSONL file."""
         examples = []
         with open(filepath) as f:
             for line in f:
