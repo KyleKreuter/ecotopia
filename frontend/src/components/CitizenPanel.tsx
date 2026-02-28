@@ -15,14 +15,38 @@ const TONE_COLORS: Record<CitizenTone, string> = {
   neutral: '#9ca3af',
 };
 
+const AVATAR_COLORS: Record<string, string> = {
+  angry: '#991b1b',
+  hopeful: '#166534',
+  sarcastic: '#5b21b6',
+  desperate: '#9a3412',
+  grateful: '#065f46',
+  suspicious: '#92400e',
+  neutral: '#374151',
+};
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2);
+}
+
 function CitizenCard({ citizen }: { citizen: Citizen }): React.JSX.Element {
   const approvalColor =
     citizen.approval >= 60 ? '#4ade80' : citizen.approval >= 40 ? '#fbbf24' : '#ef4444';
+  const avatarBg = AVATAR_COLORS[citizen.tone] || AVATAR_COLORS.neutral;
 
   return (
     <div className="citizen-card">
       <div className="citizen-header">
-        <strong>{citizen.name}</strong>
+        <div className="citizen-identity">
+          <div className="citizen-avatar" style={{ backgroundColor: avatarBg }}>
+            {getInitials(citizen.name)}
+          </div>
+          <strong>{citizen.name}</strong>
+        </div>
         {citizen.isCore && <span className="core-badge">Core</span>}
       </div>
       <div className="citizen-role">{citizen.role}</div>
@@ -36,8 +60,8 @@ function CitizenCard({ citizen }: { citizen: Citizen }): React.JSX.Element {
         </div>
         <span className="approval-value">{citizen.approval}%</span>
       </div>
-      <div className="citizen-dialogue" style={{ borderLeftColor: TONE_COLORS[citizen.tone] }}>
-        "{citizen.dialogue}"
+      <div className="citizen-dialogue">
+        &ldquo;{citizen.dialogue}&rdquo;
       </div>
       <div className="citizen-tone" style={{ color: TONE_COLORS[citizen.tone] }}>
         {citizen.tone}
@@ -49,7 +73,7 @@ function CitizenCard({ citizen }: { citizen: Citizen }): React.JSX.Element {
 export function CitizenPanel({ citizens }: CitizenPanelProps): React.JSX.Element {
   return (
     <div className="citizen-panel">
-      <h3>Citizens</h3>
+      <h3>Citizens ({citizens.length})</h3>
       {citizens.map((c) => (
         <CitizenCard key={c.name} citizen={c} />
       ))}
