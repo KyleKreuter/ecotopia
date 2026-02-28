@@ -106,6 +106,8 @@ Every aspect of the project is tracked in Weights & Biases:
 
 W&B Project: [wandb.ai/mistral-hackaton-2026/ecotopia](https://wandb.ai/mistral-hackaton-2026/ecotopia)
 
+W&B Report: [Ecotopia: Fine-Tuning Mistral for Political Simulation](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia:-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NTQxMA==)
+
 ---
 
 ## Results: Base vs Fine-Tuned
