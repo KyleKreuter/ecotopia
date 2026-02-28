@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ecotopia-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ecotopia
+      POSTGRES_USER: ecotopia
+      POSTGRES_PASSWORD: ecotopia
+    volumes:
+      - ecotopia-data:/var/lib/postgresql/data
+
+volumes:
+  ecotopia-data:
