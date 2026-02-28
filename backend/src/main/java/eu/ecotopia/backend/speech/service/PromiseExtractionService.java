@@ -13,6 +13,8 @@ import eu.ecotopia.backend.speech.model.AiExtractionResponse;
 import eu.ecotopia.backend.speech.model.AiPromise;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,9 @@ public class PromiseExtractionService {
     private final ObjectMapper objectMapper;
     private final PromiseRepository promiseRepository;
     private final CitizenRepository citizenRepository;
+
+    @Value("${ecotopia.ai.extraction-model:}")
+    private String extractionModel;
 
     public PromiseExtractionService(
             ChatClient.Builder chatClientBuilder,
@@ -90,11 +95,15 @@ public class PromiseExtractionService {
 
         log.debug("Sending extraction prompt for game {} round {}", game.getId(), game.getCurrentRound());
 
-        String response = chatClient.prompt()
+        var requestSpec = chatClient.prompt()
                 .system(SYSTEM_PROMPT)
-                .user(userPrompt)
-                .call()
-                .content();
+                .user(userPrompt);
+
+        if (extractionModel != null && !extractionModel.isBlank()) {
+            requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(extractionModel).build());
+        }
+
+        String response = requestSpec.call().content();
 
         log.debug("AI extraction response: {}", response);
 
