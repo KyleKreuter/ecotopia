@@ -22,7 +22,7 @@ public class SpeechController {
     public ResponseEntity<SpeechResponse> submitSpeech(
             @PathVariable Long gameId,
             @Valid @RequestBody SpeechRequest request) {
-        // TODO: Phase 3 will integrate Mistral AI here
-        return ResponseEntity.ok(new SpeechResponse(List.of(), List.of()));
+        // TODO: Phase 3 will integrate AI speech processing here
+        return ResponseEntity.ok(new SpeechResponse(List.of(), List.of(), List.of()));
     }
 }
