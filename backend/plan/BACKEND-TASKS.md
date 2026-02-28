@@ -94,13 +94,11 @@
 - [ ] AI generates in-character reactions for each citizen (core + dynamic)
 - [ ] Context: personality, approval, past interactions, current actions
 - [ ] Sarah quotes the player verbatim on broken promises
+- [ ] On double-spawns (e.g., Oleg + Lena), AI generates interactions between the two citizens
 
-### 3.5 Create Dynamic Citizens
-- [ ] AI generates: name, profession, age, personality, opening speech
-- [ ] Everything must be contextually relevant to the triggering action
-- [ ] Generate interactions between dynamic citizens (e.g., Oleg meets Lena)
+### ~~3.5 Create Dynamic Citizens~~ (SKIPPED — hardcoded citizens are sufficient for hackathon)
 
-### 3.6 Prompt Engineering
+### 3.5 Prompt Engineering (was 3.6)
 - [ ] Design system prompts for each AI call
 - [ ] Context management: Entire game history must fit into the prompt (round history, all speeches, all promises)
 - [ ] Structured output: Parse AI responses as JSON (approval changes, new promises, citizen texts)
