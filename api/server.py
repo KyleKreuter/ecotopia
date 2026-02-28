@@ -5,8 +5,11 @@ import os
 import weave
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from mistralai import Mistral
 from pydantic import BaseModel
+
+from api.tts import text_to_speech
 
 weave.init("ecotopia-hackathon")
 
@@ -129,6 +132,25 @@ async def submit_speech(req: SpeechRequest) -> dict:
     try:
         result = process_turn(req.speech, req.game_state)
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class TTSRequest(BaseModel):
+    """Request body for TTS endpoint."""
+
+    citizen_name: str = "default"
+    text: str
+
+
+@app.post("/api/tts")
+async def generate_speech(req: TTSRequest) -> FileResponse:
+    """Generate speech audio for a citizen's dialogue."""
+    try:
+        path = text_to_speech(req.text, req.citizen_name)
+        return FileResponse(path, media_type="audio/mpeg")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
