@@ -1,8 +1,13 @@
 import type { GameState } from '../types/game';
 import { INITIAL_GAME_STATE } from './mockData';
+import {
+  isMistralAvailable,
+  processPlayerTurn,
+  applyTurnResult,
+} from './mistral';
 
-const API_BASE = '/api/game';
-const USE_MOCK = true;
+/** True when no Mistral key is set -- falls back to random mock logic. */
+const USE_MOCK = !isMistralAvailable();
 
 /** Simulates network delay for realistic mock behavior. */
 function delay(ms: number): Promise<void> {
@@ -68,13 +73,26 @@ async function mockSubmitSpeech(
   };
 }
 
+/**
+ * Submits the speech to Mistral for AI analysis, then applies the result
+ * to produce the next game state.
+ */
+async function mistralSubmitSpeech(
+  currentState: GameState,
+  speech: string
+): Promise<GameState> {
+  const turnResult = await processPlayerTurn(speech, currentState);
+  return applyTurnResult(currentState, turnResult);
+}
+
 export async function getGameState(): Promise<GameState> {
   if (USE_MOCK) {
     await delay(200);
     return { ...INITIAL_GAME_STATE };
   }
-  const res = await fetch(`${API_BASE}/state`);
-  return res.json() as Promise<GameState>;
+  // With Mistral mode we still use local initial state (no backend needed)
+  await delay(100);
+  return { ...INITIAL_GAME_STATE };
 }
 
 export async function submitSpeech(
@@ -84,19 +102,10 @@ export async function submitSpeech(
   if (USE_MOCK) {
     return mockSubmitSpeech(currentState, speech);
   }
-  const res = await fetch(`${API_BASE}/speech`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ speech }),
-  });
-  return res.json() as Promise<GameState>;
+  return mistralSubmitSpeech(currentState, speech);
 }
 
 export async function startNewGame(): Promise<GameState> {
-  if (USE_MOCK) {
-    await delay(300);
-    return { ...INITIAL_GAME_STATE };
-  }
-  const res = await fetch(`${API_BASE}/new`, { method: 'POST' });
-  return res.json() as Promise<GameState>;
+  await delay(200);
+  return { ...INITIAL_GAME_STATE };
 }
