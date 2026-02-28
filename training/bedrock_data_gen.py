@@ -5,16 +5,37 @@ Uses Mistral Large on Bedrock to generate high-quality training examples.
 """
 import json
 import os
+import re
 from pathlib import Path
 
 import boto3
+
+
+def extract_json(text: str) -> dict:
+    """Extract JSON from LLM response, handling markdown code blocks."""
+    # Try direct parse first
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Try extracting from code blocks
+    match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
+    if match:
+        return json.loads(match.group(1).strip())
+    # Try finding first { to last }
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1:
+        return json.loads(text[start:end + 1])
+    raise json.JSONDecodeError("No JSON found", text, 0)
 
 
 def get_bedrock_client():
     """Create Bedrock runtime client."""
     return boto3.client(
         "bedrock-runtime",
-        region_name=os.environ.get("AWS_REGION", "us-east-1"),
+        region_name=os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION", "us-west-2")),
     )
 
 
@@ -73,18 +94,18 @@ def generate_extraction_examples(client, count: int = 20) -> list[dict]:
     for i in range(min(count, len(scenarios))):
         prompt = f"""Generate a training example for scenario: {scenarios[i]}
 
-Return ONLY valid JSON in this exact format:
+Return ONLY raw valid JSON (no markdown, no code blocks, no explanation). Format:
 {{
   "messages": [
     {{"role": "system", "content": "Extract promises from the mayor's speech as JSON."}},
     {{"role": "user", "content": "<the mayor's speech>"}},
-    {{"role": "assistant", "content": "<JSON with promises and contradictions>"}}
+    {{"role": "assistant", "content": "<JSON string with promises and contradictions>"}}
   ]
 }}"""
 
         try:
             result = call_mistral_bedrock(client, prompt, system)
-            parsed = json.loads(result)
+            parsed = extract_json(result)
             if "messages" in parsed:
                 examples.append(parsed)
                 print(f"Generated example {i+1}/{count}: {scenarios[i][:50]}")
@@ -120,18 +141,18 @@ def generate_citizens_examples(client, count: int = 20) -> list[dict]:
     for i in range(min(count, len(promise_sets))):
         prompt = f"""Generate a training example for citizen reactions to this promise: "{promise_sets[i]}"
 
-Return ONLY valid JSON in this exact format:
+Return ONLY raw valid JSON (no markdown, no code blocks, no explanation). Format:
 {{
   "messages": [
     {{"role": "system", "content": "Generate citizen reactions to the mayor's promises."}},
     {{"role": "user", "content": "<promises and game context>"}},
-    {{"role": "assistant", "content": "<JSON with reactions array>"}}
+    {{"role": "assistant", "content": "<JSON string with reactions array>"}}
   ]
 }}"""
 
         try:
             result = call_mistral_bedrock(client, prompt, system)
-            parsed = json.loads(result)
+            parsed = extract_json(result)
             if "messages" in parsed:
                 examples.append(parsed)
                 print(f"Generated citizen example {i+1}/{count}: {promise_sets[i][:50]}")
