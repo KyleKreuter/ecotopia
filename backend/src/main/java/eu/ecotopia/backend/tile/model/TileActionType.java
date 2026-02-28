@@ -1,0 +1,9 @@
+package eu.ecotopia.backend.tile.model;
+
+public enum TileActionType {
+    DEMOLISH,
+    BUILD_FACTORY, BUILD_SOLAR, BUILD_RESEARCH_CENTER, BUILD_FUSION,
+    PLANT_FOREST,
+    UPGRADE_CARBON_CAPTURE, REPLACE_WITH_SOLAR,
+    CLEAR_FARMLAND
+}
