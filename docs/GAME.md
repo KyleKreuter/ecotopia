@@ -43,24 +43,24 @@ Eine feste, vordesignte Karte. Immer die gleiche beim Spielstart. Die Karte enth
 ### Startmap
 
 ```
-🌲🌲🌲🌲🌲💧💧🏭🏭⛽
-🌲🌲🌲🌲🌲💧💧🏭🏗️⬜
-🌲🌲🌲🌲💧💧💧⬜⬜⬜
-🌲🌲🌲💧💧💧⬜⬜🏠🏠
-💧💧💧💧💧💧🌾🌾🏠🏠
-💧💧💧💧💧🌾🌾🌾🏢🏠
-⬜🌾🌾🌾🌾🌾🌾🏠🏠🏠
-⬜🌾🌾🌾🌾🌾🏠🏠🏢⬜
-⬜⬜🌾🌾🌾⬜🏠⬜⬜⬜
-⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜
+[Forest][Forest][Forest][Forest][Forest][Factory][Factory][Oil]
+[Forest][Forest][Forest][Forest][Forest][Factory][Construction][Empty]
+[Forest][Forest][Forest][Forest][Empty][Empty][Empty]
+[Forest][Forest][Forest][Empty][Empty][House][House]
+[Farm][Farm][House][House]
+[Farm][Farm][Farm][House]
+[Empty][Farm][Farm][Farm][Farm][Farm][Farm][House][House][House]
+[Empty][Farm][Farm][Farm][Farm][Farm][House][House][Empty]
+[Empty][Empty][Farm][Farm][Farm][Empty][House][Empty][Empty][Empty]
+[Empty][Empty][Empty][Empty][Empty][Empty][Empty][Empty][Empty][Empty]
 ```
 
-- **Norden:** Dichter Wald (🌲) — das ökologische Herz
-- **Mitte:** Fluss (💧) — durchschneidet die Karte horizontal
-- **Nord-Ost:** Industriegebiet mit Fabriken (🏭), Kohlekraftwerk (🏗️) und Ölraffinerie (⛽)
-- **Zentrum-Süd:** Wohngebiete (🏠) und Stadtzentren (🏢)
-- **Süd-West:** Farmland (🌾)
-- **Süden + verstreut:** Ödland (⬜) als Bau-Potenzial
+- **Norden:** Dichter Wald ([Forest]) — das ökologische Herz
+- **Mitte:** Fluss () — durchschneidet die Karte horizontal
+- **Nord-Ost:** Industriegebiet mit Fabriken ([Factory]), Kohlekraftwerk ([Construction]) und Ölraffinerie ([Oil])
+- **Zentrum-Süd:** Wohngebiete ([House]) und Stadtzentren ()
+- **Süd-West:** Farmland ([Farm])
+- **Süden + verstreut:** Ödland ([Empty]) als Bau-Potenzial
 
 ### Tile-Typen
 
@@ -180,8 +180,8 @@ Zwei Meilensteine auf einer horizontalen Progress-Bar:
 
 ```
 [================|================================]
-               40%                              80%
-             Solar                            Fusion
+               40% 80%
+             Solar Fusion
 ```
 
 **Forschung 40% — Solarfeld:**
@@ -394,47 +394,47 @@ Runde 6-7: Sieg — wenn die Versprechen gehalten wurden.
 ## UI Layout
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  ECOTOPIA                 Runde 3/7           Aktionen: 1 übrig  │
-├────────────────────────────────┬─────────────────────────────────┤
-│                                │  Ökologie:   ████████░░ 48%     │
-│                                │  Wirtschaft:  █████████░ 58%     │
-│       10x10 TILE GRID         │  Forschung:   ████░░░░░░ 22%     │
-│                                │                                  │
-│   (klickbar, farbig,          │  Tech-Tree:                      │
-│    kompakte Stadtansicht)      │  🔒 Solar (40%) — noch 18%      │
-│                                │  🔒 Fusion (80%)                 │
-│                                │                                  │
-│                                │  Bürger:                         │
-│                                │  Karl     ██████░░░░ 55%        │
-│                                │  Mia      ████░░░░░░ 40%        │
-│                                │  Sarah    ███░░░░░░░ 30%        │
-│                                │  Oleg ⚡  ██░░░░░░░░ 18%        │
-│                                │  (⚡ = dynamisch)                │
-├────────────────────────────────┴─────────────────────────────────┤
-│                                                                   │
-│  💬 Bürger-Reaktionen:                                           │
-│  Oleg: "20 Jahre Raffinerie. Was soll ich jetzt machen?"         │
-│  Karl: "Das könnte ich sein. Was passiert mit uns Arbeitern?"    │
-│  Mia: "Die Raffinerie musste weg. Aber er braucht Perspektive." │
-│  Sarah: "Ein 54-Jähriger ohne Job. Das wird die Schlagzeile."   │
-│                                                                   │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  📢 Ihre Rede an die Bürger:                                    │
-│  ┌──────────────────────────────────────────────────────────┐    │
-│  │ Oleg, ich verstehe Ihre Wut. Die Raffinerie musste weg — │    │
-│  │ der Fluss war vergiftet. Aber ich lasse Sie nicht fallen. │    │
-│  │ Das Solarfeld kommt nächste Runde, und da brauchen wir   │    │
-│  │ Leute die anpacken können. Das verspreche ich Ihnen.     │    │
-│  └──────────────────────────────────────────────────────────┘    │
-│                                              [Rede halten]       │
-│                                                                   │
-│  Aktive Versprechen:                                             │
-│  • "Job für Oleg im Solarfeld" ⏳ (Versprochen Runde 2)         │
-│  • "Fluss sauber bis Runde 5" ⏳ (2 Runden verbleibend)         │
-│                                                                   │
-└──────────────────────────────────────────────────────────────────┘
+
+  ECOTOPIA Runde 3/7 Aktionen: 1 übrig 
+
+                                  Ökologie: 48% 
+                                  Wirtschaft: 58% 
+       10x10 TILE GRID Forschung: 22% 
+                                                                  
+   (klickbar, farbig, Tech-Tree: 
+    kompakte Stadtansicht) Solar (40%) — noch 18% 
+                                   Fusion (80%) 
+                                                                  
+                                  Bürger: 
+                                  Karl 55% 
+                                  Mia 40% 
+                                  Sarah 30% 
+                                  Oleg [Energy] 18% 
+                                  ([Energy] = dynamisch) 
+
+                                                                   
+   Bürger-Reaktionen: 
+  Oleg: "20 Jahre Raffinerie. Was soll ich jetzt machen?" 
+  Karl: "Das könnte ich sein. Was passiert mit uns Arbeitern?" 
+  Mia: "Die Raffinerie musste weg. Aber er braucht Perspektive." 
+  Sarah: "Ein 54-Jähriger ohne Job. Das wird die Schlagzeile." 
+                                                                   
+
+                                                                   
+   Ihre Rede an die Bürger: 
+      
+   Oleg, ich verstehe Ihre Wut. Die Raffinerie musste weg — 
+   der Fluss war vergiftet. Aber ich lasse Sie nicht fallen. 
+   Das Solarfeld kommt nächste Runde, und da brauchen wir 
+   Leute die anpacken können. Das verspreche ich Ihnen. 
+      
+                                              [Rede halten] 
+                                                                   
+  Aktive Versprechen: 
+  • "Job für Oleg im Solarfeld"  (Versprochen Runde 2) 
+  • "Fluss sauber bis Runde 5"  (2 Runden verbleibend) 
+                                                                   
+
 ```
 
 ---
