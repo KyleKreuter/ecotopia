@@ -193,7 +193,7 @@ def main() -> None:
     """Generate W&B report and save markdown."""
     os.environ.setdefault(
         "WANDB_API_KEY",
-        "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",
+        "",
     )
 
     print("Fetching W&B runs...")
