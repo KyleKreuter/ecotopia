@@ -23,9 +23,9 @@ Player speech + game state
 
 | Model | API name | Fine-tuned? | Role |
 |---|---|---|---|
-| Ministral 8B | `ministral-8b-latest` | ✅ SFT | Small specialist |
-| Mistral Nemo 12B | `open-mistral-nemo` | ✅ SFT | Medium specialist |
-| Mistral Large 3 | `mistral-large-latest` | ❌ Base | Benchmark |
+| Ministral 8B | `ministral-8b-latest` | Yes SFT | Small specialist |
+| Mistral Nemo 12B | `open-mistral-nemo` | Yes SFT | Medium specialist |
+| Mistral Large 3 | `mistral-large-latest` | No Base | Benchmark |
 
 **Dataset:** 200 examples in `training/data/extraction/`
 - 25 explicit promises
@@ -37,8 +37,8 @@ Player speech + game state
 
 | Model | API name | Fine-tuned? | Role |
 |---|---|---|---|
-| Mistral Small 24B | `mistral-small-latest` | ✅ SFT | Production (in-game) |
-| Mistral Large 3 | `mistral-large-latest` | ❌ Base | Benchmark |
+| Mistral Small 24B | `mistral-small-latest` | Yes SFT | Production (in-game) |
+| Mistral Large 3 | `mistral-large-latest` | No Base | Benchmark |
 
 **Dataset:** ~340 examples (to be generated)
 
