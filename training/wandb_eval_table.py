@@ -139,7 +139,7 @@ def compute_promise_metrics(output_str: str, expected: dict) -> dict:
     return metrics
 
 
-def main():
+def main() -> None:
     """Run evaluation and log to W&B."""
     client = Mistral(api_key=MISTRAL_API_KEY)
 

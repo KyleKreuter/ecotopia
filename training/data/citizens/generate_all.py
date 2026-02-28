@@ -295,13 +295,17 @@ DYNAMIC_CITIZENS_TEMPLATES = {
 }
 
 
-def pick_dialogue(citizen_name, tone):
+def pick_dialogue(citizen_name: str, tone: str) -> str:
+    """Pick a random dialogue line for a citizen given their tone."""
     pool = CITIZEN_DIALOGUES[citizen_name][tone]
     return random.choice(pool)
 
 
-def make_user_input(round_num, ecology, economy, research, promises_extracted, contradictions,
-                    active_citizens, dynamic_citizens, actions, speeches):
+def make_user_input(round_num: int, ecology: int, economy: int, research: int,
+                    promises_extracted: list, contradictions: list,
+                    active_citizens: list, dynamic_citizens: list,
+                    actions: list, speeches: list) -> str:
+    """Build the JSON user input for a training example."""
     return json.dumps({
         "round": round_num,
         "promises_extracted": promises_extracted,
@@ -314,7 +318,8 @@ def make_user_input(round_num, ecology, economy, research, promises_extracted, c
     })
 
 
-def make_line(user_content, assistant_content):
+def make_line(user_content: str, assistant_content: str) -> str:
+    """Create a JSONL training line with system/user/assistant messages."""
     return json.dumps({
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -324,14 +329,17 @@ def make_line(user_content, assistant_content):
     })
 
 
-def rand_game_state(round_num):
+def rand_game_state(round_num: int) -> tuple[int, int, int]:
+    """Generate random ecology/economy/research values for a game round."""
     base_eco = random.randint(25, 85)
     base_econ = random.randint(25, 85)
     base_res = random.randint(10, 75)
     return base_eco, base_econ, base_res
 
 
-def core_citizens(karl_app=None, mia_app=None, sarah_app=None):
+def core_citizens(karl_app: int | None = None, mia_app: int | None = None,
+                  sarah_app: int | None = None) -> list[dict]:
+    """Return the three core citizens with optional fixed approval ratings."""
     return [
         {"name": "Karl", "role": "factory worker", "personality": "pragmatic, cares about jobs and economic stability", "approval": karl_app or random.randint(30, 80)},
         {"name": "Mia", "role": "environmental activist", "personality": "passionate, cares deeply about ecology and nature", "approval": mia_app or random.randint(30, 80)},
@@ -339,7 +347,8 @@ def core_citizens(karl_app=None, mia_app=None, sarah_app=None):
     ]
 
 
-def pick_tone_for_scenario(approval, scenario_type):
+def pick_tone_for_scenario(approval: int, scenario_type: str) -> str:
+    """Select a citizen tone based on their approval and the scenario type."""
     if scenario_type == "good":
         if approval > 70:
             return random.choice(["grateful", "hopeful"])
@@ -354,7 +363,8 @@ def pick_tone_for_scenario(approval, scenario_type):
         return random.choice(["suspicious", "hopeful", "sarcastic"])
 
 
-def approval_delta_for_scenario(scenario_type, tone):
+def approval_delta_for_scenario(scenario_type: str, tone: str) -> int:
+    """Compute the approval change for a scenario type and citizen tone."""
     if scenario_type == "good":
         return random.randint(3, 12)
     elif scenario_type == "broken":
@@ -366,7 +376,8 @@ def approval_delta_for_scenario(scenario_type, tone):
 
 
 # BATCH 1: Core reactions (100 examples)
-def generate_batch1():
+def generate_batch1() -> list[str]:
+    """Generate batch 1: core citizen reactions (100 examples)."""
     lines = []
     scenarios = ["good"] * 30 + ["broken"] * 30 + ["contradiction"] * 20 + ["neutral"] * 20
     random.shuffle(scenarios)
@@ -420,7 +431,8 @@ def generate_batch1():
 
 
 # BATCH 2: Dynamic spawning (80 examples)
-def generate_batch2():
+def generate_batch2() -> list[str]:
+    """Generate batch 2: dynamic citizen spawning (100 examples)."""
     lines = []
     # 50 with spawns, 30 without
     spawn_types = (["climate_refugee"] * 10 + ["business_owner"] * 10 +
@@ -521,7 +533,8 @@ def generate_batch2():
 
 
 # BATCH 3: Complex scenarios (100 examples)
-def generate_batch3():
+def generate_batch3() -> list[str]:
+    """Generate batch 3: complex multi-citizen scenarios (100 examples)."""
     lines = []
 
     cross_references = [
@@ -640,7 +653,8 @@ def generate_batch3():
 
 
 # BATCH 4: Edge cases (60 examples)
-def generate_batch4():
+def generate_batch4() -> list[str]:
+    """Generate batch 4: edge cases and stress tests (100 examples)."""
     lines = []
 
     # Very low approval (15 examples)
@@ -888,14 +902,16 @@ def generate_batch4():
     return lines
 
 
-def write_jsonl(filepath, lines):
+def write_jsonl(filepath: str, lines: list[str]) -> None:
+    """Write training lines to a JSONL file."""
     with open(filepath, 'w') as f:
         for line in lines:
             f.write(line + '\n')
     print(f"Wrote {len(lines)} examples to {filepath}")
 
 
-def validate_jsonl(filepath):
+def validate_jsonl(filepath: str) -> int:
+    """Validate a JSONL file and return the number of errors found."""
     errors = 0
     with open(filepath) as f:
         for i, line in enumerate(f, 1):
