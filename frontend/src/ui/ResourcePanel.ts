@@ -7,6 +7,7 @@ export class ResourcePanel {
     this.el = document.createElement('div');
     this.el.className = 'resource-panel';
     this.el.innerHTML = `
+      <div class="panel-header">Resources</div>
       <div class="round-info">Round <span class="round-num">1</span>/7</div>
       <div class="resources">
         <div class="resource-bar ecology">
@@ -34,6 +35,7 @@ export class ResourcePanel {
           <div class="tech-marker fusion" style="left: 80%"><span class="tech-icon fusion">F</span></div>
         </div>
       </div>
+    <div class="sidebar-divider"></div>
     `;
     parent.appendChild(this.el);
   }

@@ -22,10 +22,19 @@ export class UIManager {
   constructor() {
     this.overlay = document.getElementById('ui-overlay')!;
 
-    this.resourcePanel = new ResourcePanel(this.overlay);
-    this.citizenPanel = new CitizenPanel(this.overlay);
+    // Create sidebar containers
+    const leftSidebar = document.createElement('div');
+    leftSidebar.className = 'left-sidebar';
+    this.overlay.appendChild(leftSidebar);
+
+    const rightSidebar = document.createElement('div');
+    rightSidebar.className = 'right-sidebar';
+    this.overlay.appendChild(rightSidebar);
+
+    this.resourcePanel = new ResourcePanel(leftSidebar);
+    this.promisePanel = new PromisePanel(leftSidebar);
+    this.citizenPanel = new CitizenPanel(rightSidebar);
     this.speechPanel = new SpeechPanel(this.overlay);
-    this.promisePanel = new PromisePanel(this.overlay);
     this.contradictionAlert = new ContradictionAlert(this.overlay);
     this.reactionPanel = new ReactionPanel(this.overlay);
 

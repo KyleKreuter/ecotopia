@@ -2,18 +2,21 @@ import type { CitizenResponse } from '../types/backend.ts';
 
 export class CitizenPanel {
   private el: HTMLElement;
+  private listEl!: HTMLElement;
 
   constructor(parent: HTMLElement) {
     this.el = document.createElement('div');
     this.el.className = 'citizen-panel';
+    this.el.innerHTML = '<div class="panel-header">Citizens</div><div class="citizen-list"></div>';
     parent.appendChild(this.el);
+    this.listEl = this.el.querySelector('.citizen-list')!;
   }
 
   update(citizens: CitizenResponse[]): void {
     const core = citizens.filter((c) => c.citizenType === 'CORE');
     const dynamic = citizens.filter((c) => c.citizenType === 'DYNAMIC');
 
-    this.el.innerHTML = core
+    this.listEl.innerHTML = core
       .map((c) => this.renderCitizen(c))
       .concat(dynamic.map((c) => this.renderCitizen(c, true)))
       .join('');
@@ -44,7 +47,7 @@ export class CitizenPanel {
     const avatarKey = this.avatarKey(c.name);
     return `
       <div class="citizen-entry${cls}">
-        <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${c.name}" width="32" height="32" onerror="this.style.display='none'">
+        <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${c.name}" width="40" height="40" onerror="this.style.display='none'">
         <span class="citizen-name">${label}</span>
         <div class="citizen-bar-track"><div class="citizen-bar-fill" style="width: ${pct}%"></div></div>
         <span class="citizen-value">${c.approval}</span>
