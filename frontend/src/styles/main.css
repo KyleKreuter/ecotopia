@@ -966,3 +966,131 @@ body {
 .citizen-avatar.negative {
   filter: drop-shadow(0 0 4px rgba(220, 40, 40, 0.6));
 }
+
+/* Tutorial Overlay */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: auto;
+}
+
+.tutorial-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
+}
+
+.tutorial-card {
+  position: absolute;
+  width: 420px;
+  max-width: 90vw;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #0f3460;
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(15, 52, 96, 0.3);
+  color: #e0e0e0;
+  z-index: 501;
+  animation: tutorialFadeIn 0.4s ease;
+}
+
+.tutorial-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tutorial-top {
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tutorial-bottom {
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tutorial-right {
+  top: 80px;
+  right: 40px;
+}
+
+.tutorial-step-indicator {
+  font-size: 12px;
+  color: #556;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tutorial-title {
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.tutorial-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+.tutorial-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.3s;
+}
+
+.tutorial-dot.active {
+  background: #3498db;
+  box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
+}
+
+.tutorial-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.tutorial-skip {
+  background: none;
+  border: none;
+  color: #556;
+  font-family: 'BitPotionExt', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.tutorial-skip:hover {
+  color: #aaa;
+}
+
+.tutorial-highlighted {
+  position: relative;
+  z-index: 502;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.5), 0 0 40px rgba(52, 152, 219, 0.2);
+  border-color: #3498db !important;
+}
+
+@keyframes tutorialFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
