@@ -38,7 +38,8 @@ export class ReactionPanel {
     const deltaStr = r.approvalDelta >= 0 ? `+${r.approvalDelta}` : `${r.approvalDelta}`;
     const hasAudio = r.audioBase64 ? '<span class="audio-icon">&#9835;</span>' : '';
 
-    const avatarKey = r.citizenName.toLowerCase();
+    const parts = r.citizenName.toLowerCase().split(/[\s.]+/).filter(Boolean);
+    const avatarKey = parts[parts.length - 1];
     const glowClass = r.approvalDelta >= 0 ? 'positive' : 'negative';
     const toneColors: Record<string, string> = {
       angry: '#e74c3c',
