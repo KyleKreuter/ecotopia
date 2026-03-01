@@ -14,12 +14,11 @@
 # ///
 """Fine-tune Mistral Small 22B on Ecotopia citizens dialogue data using TRL SFT + QLoRA.
 
-Runs as a HuggingFace Job via: hf jobs uv run --flavor a10g-large hf_finetune_citizens_small.py
+Runs as a HuggingFace Job via: hf jobs uv run --flavor a100-large hf_finetune_citizens_small.py
 """
 
 import json
 import os
-from pathlib import Path
 
 import torch
 from datasets import Dataset
@@ -124,7 +123,6 @@ def main() -> None:
         bf16=True,
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
-        max_seq_length=MAX_SEQ_LENGTH,
         report_to="wandb" if use_wandb else "none",
         run_name="ecotopia-citizens-small-22b",
         hub_model_id=HF_REPO,
