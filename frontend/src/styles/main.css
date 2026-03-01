@@ -1094,3 +1094,144 @@ body {
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+/* DEMO POLISH - Larger fonts, no scroll, fitted layout */
+.resource-panel {
+  font-size: 22px !important;
+  padding: 12px 24px !important;
+}
+
+.resource-panel .round-info {
+  font-size: 26px !important;
+}
+
+.resource-bar .bar-label {
+  font-size: 20px !important;
+}
+
+.resource-bar .bar-value {
+  font-size: 20px !important;
+}
+
+.resource-bar .bar-track {
+  width: 140px !important;
+  height: 18px !important;
+}
+
+.citizen-panel {
+  min-width: 240px !important;
+  font-size: 18px !important;
+}
+
+.citizen-entry {
+  font-size: 18px !important;
+  padding: 6px 8px !important;
+}
+
+.citizen-name {
+  font-size: 18px !important;
+}
+
+.citizen-value {
+  font-size: 18px !important;
+}
+
+.citizen-avatar {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+/* Reaction panel - no scroll, compact */
+.reaction-panel {
+  max-height: 45vh !important;
+  padding: 12px 20px !important;
+  overflow-y: auto !important;
+}
+
+.reaction-panel h3 {
+  font-size: 24px !important;
+}
+
+.reaction-entry {
+  padding: 10px 12px !important;
+  margin-bottom: 6px !important;
+}
+
+.reaction-name {
+  font-size: 20px !important;
+}
+
+.reaction-delta {
+  font-size: 20px !important;
+}
+
+.reaction-dialogue {
+  font-size: 18px !important;
+}
+
+/* Speech panel - larger */
+.speech-modal {
+  width: 600px !important;
+}
+
+.speech-modal h3 {
+  font-size: 28px !important;
+}
+
+.speech-modal textarea {
+  font-size: 22px !important;
+  height: 140px !important;
+}
+
+.speech-context {
+  font-size: 18px !important;
+}
+
+.pixel-btn {
+  font-size: 20px !important;
+  padding: 12px 24px !important;
+}
+
+.speech-modal .speech-submit {
+  font-size: 24px !important;
+  padding: 16px 48px !important;
+}
+
+/* Round overlay - dramatic */
+.round-overlay .round-text {
+  font-size: 48px !important;
+}
+
+.round-overlay .round-sub {
+  font-size: 24px !important;
+}
+
+/* Tile tooltip - larger */
+.tile-tooltip {
+  font-size: 24px !important;
+  padding: 8px 16px !important;
+}
+
+/* Promise panel */
+.promise-panel {
+  font-size: 18px !important;
+}
+
+/* Tech tree larger */
+.tech-tree {
+  font-size: 18px !important;
+}
+
+.tech-track {
+  width: 180px !important;
+  height: 18px !important;
+}
+
+/* Tutorial - crisp */
+.tutorial-title {
+  font-size: 32px !important;
+}
+
+.tutorial-text {
+  font-size: 20px !important;
+}

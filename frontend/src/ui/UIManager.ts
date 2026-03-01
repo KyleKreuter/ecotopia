@@ -31,7 +31,7 @@ export class UIManager {
 
     this.setupEventListeners();
 
-    if (gameState.getState().currentRound === 1) {
+    if (!gameState.gameState || gameState.gameState.currentRound === 1) {
       this.tutorial = new TutorialOverlay(this.overlay, () => {
         this.tutorial = null;
       });
