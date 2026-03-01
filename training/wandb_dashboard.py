@@ -1,7 +1,5 @@
 """Create a comprehensive W&B dashboard for Ecotopia hackathon."""
-import json
 import os
-import random
 import math
 
 import wandb
@@ -291,7 +289,7 @@ def main() -> None:
     """Create all dashboard components."""
     os.environ.setdefault(
         "WANDB_API_KEY",
-        "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"
+        os.environ.get("WANDB_API_KEY", "")
     )
 
     print("Creating evaluation dashboard...")
