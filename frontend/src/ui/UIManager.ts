@@ -5,6 +5,7 @@ import { CitizenPanel } from './CitizenPanel.ts';
 import { SpeechPanel } from './SpeechPanel.ts';
 import { PromisePanel } from './PromisePanel.ts';
 import { ContradictionAlert } from './ContradictionAlert.ts';
+import { ReactionPanel } from './ReactionPanel.ts';
 
 export class UIManager {
   private overlay: HTMLElement;
@@ -13,6 +14,7 @@ export class UIManager {
   private speechPanel: SpeechPanel;
   private promisePanel: PromisePanel;
   private contradictionAlert: ContradictionAlert;
+  private reactionPanel: ReactionPanel;
 
   constructor() {
     this.overlay = document.getElementById('ui-overlay')!;
@@ -22,6 +24,7 @@ export class UIManager {
     this.speechPanel = new SpeechPanel(this.overlay);
     this.promisePanel = new PromisePanel(this.overlay);
     this.contradictionAlert = new ContradictionAlert(this.overlay);
+    this.reactionPanel = new ReactionPanel(this.overlay);
 
     this.setupEventListeners();
   }
@@ -30,8 +33,10 @@ export class UIManager {
     eventBus.on(GameEvents.PHASE_CHANGED, (phase: unknown) => {
       if (phase === 'speech') {
         this.speechPanel.show();
+        this.reactionPanel.hide();
       } else {
         this.speechPanel.hide();
+        this.reactionPanel.hide();
       }
     });
 
@@ -39,6 +44,9 @@ export class UIManager {
       const r = response as SpeechResponse;
       if (r.contradictions.length > 0) {
         this.contradictionAlert.show(r.contradictions);
+      }
+      if (r.citizenReactions.length > 0) {
+        this.reactionPanel.show(r.citizenReactions);
       }
       this.speechPanel.showEndRound();
     });
@@ -56,5 +64,6 @@ export class UIManager {
     this.speechPanel.destroy();
     this.promisePanel.destroy();
     this.contradictionAlert.destroy();
+    this.reactionPanel.destroy();
   }
 }
