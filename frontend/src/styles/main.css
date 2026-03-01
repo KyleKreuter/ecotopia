@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'BitPotionExt';
+  src: url('/font/BitPotionExt.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -8,35 +16,13 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: monospace;
+  font-family: 'BitPotionExt', monospace;
   color: #000;
   font-size: 10px;
 }
 
-/* Pixel-art water ocean background */
 body {
-  background-color: #89C9AC;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 7px,
-      rgba(255, 255, 255, 0.07) 7px,
-      rgba(255, 255, 255, 0.07) 8px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 7px,
-      rgba(0, 0, 0, 0.03) 7px,
-      rgba(0, 0, 0, 0.03) 8px
-    );
-  animation: waterDrift 4s linear infinite;
-}
-
-@keyframes waterDrift {
-  0%   { background-position: 0 0, 0 0; }
-  100% { background-position: 0 8px, 8px 0; }
+  background-color: #ffffff;
 }
 
 #game-container {
@@ -121,70 +107,12 @@ body {
   font-size: 10px;
 }
 
-/* Citizen Panel - Right Sidebar */
-.citizen-panel {
-  position: absolute;
-  top: 52px;
-  right: 0;
-  width: 280px;
-  bottom: 0;
-  overflow-y: auto;
-  padding: 8px;
-  background: rgba(255, 251, 241, 0.95);
-  border-left: 1px solid #000;
-}
-
-.citizen-panel h3 {
-  font-size: 10px;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.citizen-card {
-  background: #fff;
-  border: 1px solid #000;
-  padding: 8px;
-  margin-bottom: 8px;
-}
-
-.citizen-card .citizen-name {
-  font-size: 10px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.citizen-card .citizen-profession {
-  font-size: 7px;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.citizen-card .approval-bar {
-  width: 100%;
-  height: 8px;
-  background: #fff;
-  border: 1px solid #000;
-  margin-bottom: 4px;
-}
-
-.citizen-card .approval-fill {
-  height: 100%;
-  background: #000;
-  transition: width 0.4s ease;
-}
-
-.citizen-card .citizen-dialogue {
-  font-size: 7px;
-  color: #333;
-  line-height: 1.6;
-}
-
 /* Speech Panel */
 .speech-panel {
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 280px;
+  right: 0;
   padding: 12px 16px;
   background: rgba(255, 251, 241, 0.95);
   border-top: 1px solid #000;
@@ -206,7 +134,7 @@ body {
   background: #fff;
   border: 1px solid #000;
   color: #000;
-  font-family: monospace;
+  font-family: 'BitPotionExt', monospace;
   font-size: 8px;
   padding: 8px;
   resize: none;
@@ -220,7 +148,7 @@ body {
 }
 
 .pixel-btn {
-  font-family: monospace;
+  font-family: 'BitPotionExt', monospace;
   font-size: 8px;
   padding: 8px 16px;
   border: 1px solid #000;

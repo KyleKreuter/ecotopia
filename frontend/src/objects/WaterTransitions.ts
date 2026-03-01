@@ -1,5 +1,6 @@
 import { GRID_SIZE } from '../config.ts';
 import type { TileGrid } from './TileGrid.ts';
+import { isOcean } from './IslandMask.ts';
 
 // ---------------------------------------------------------------------------
 // Water type detection
@@ -36,6 +37,8 @@ export function computeWaterMask(grid: TileGrid, x: number, y: number): number {
     const nx = x + dx;
     const ny = y + dy;
     if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+    // Ocean cells (outside island mask) are not counted as water
+    if (isOcean(nx, ny)) continue;
     const neighbor = grid.getTile(nx, ny);
     if (neighbor && isWater(neighbor.tileType)) {
       mask |= bit;

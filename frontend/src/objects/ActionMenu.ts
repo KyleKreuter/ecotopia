@@ -39,7 +39,7 @@ export class ActionMenu {
     actions.forEach((action, i) => {
       const label = ACTION_LABELS[action] ?? action;
       const text = this.scene.add.text(8, 4 + i * itemHeight, label, {
-        fontFamily: 'monospace',
+        fontFamily: 'BitPotionExt, monospace',
         fontSize: '8px',
         color: '#000000',
       }).setInteractive({ useHandCursor: true });

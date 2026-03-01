@@ -3,6 +3,9 @@ import { GRID_SIZE, TILE_SIZE } from '../config.ts';
 import { TileSprite } from './TileSprite.ts';
 import { MultiTileManager, type MultiTileCluster } from './MultiTileManager.ts';
 import { isWater, computeWaterMask, resolveOverlays } from './WaterTransitions.ts';
+import { isOcean } from './IslandMask.ts';
+import { isCity, computeCityBorderMask, resolveCityOverlays } from './CityTransitions.ts';
+
 import type { TileResponse } from '../types/backend.ts';
 
 export class TileGrid {
@@ -42,15 +45,21 @@ export class TileGrid {
         const tile = new TileSprite(this.scene, x, y, 'EMPTY');
         this.container.add(tile);
         this.tiles[y][x] = tile;
+
+        if (isOcean(x, y)) {
+          tile.setOcean();
+        }
       }
     }
+
   }
 
-  /** Convert screen coordinates to grid coordinates (or null if outside) */
+  /** Convert screen coordinates to grid coordinates (or null if outside or ocean) */
   screenToGrid(screenX: number, screenY: number): { x: number; y: number } | null {
     const gx = Math.floor((screenX - this.originX) / TILE_SIZE);
     const gy = Math.floor((screenY - this.originY) / TILE_SIZE);
     if (gx < 0 || gx >= GRID_SIZE || gy < 0 || gy >= GRID_SIZE) return null;
+    if (isOcean(gx, gy)) return null;
     return { x: gx, y: gy };
   }
 
@@ -76,6 +85,7 @@ export class TileGrid {
 
     this.updateMultiTileOverlays(tileData);
     this.updateWaterTransitions();
+    this.updateCityTransitions();
   }
 
   private updateMultiTileOverlays(tileData: TileResponse[]): void {
@@ -107,6 +117,28 @@ export class TileGrid {
 
     this.container.add(overlay);
     this.multiTileOverlays.push(overlay);
+  }
+
+  private updateCityTransitions(): void {
+    for (let y = 0; y < GRID_SIZE; y++) {
+      for (let x = 0; x < GRID_SIZE; x++) {
+        const tile = this.tiles[y][x];
+
+        if (!isCity(tile.tileType)) {
+          tile.clearCityOverlays();
+          continue;
+        }
+
+        const mask = computeCityBorderMask(this, x, y);
+        if (mask === 0) {
+          tile.clearCityOverlays();
+          continue;
+        }
+
+        const specs = resolveCityOverlays(mask);
+        tile.applyCityOverlays(specs);
+      }
+    }
   }
 
   private updateWaterTransitions(): void {

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { TILE_SIZE } from '../config.ts';
 import type { OverlaySpec } from './WaterTransitions.ts';
+import type { CityOverlaySpec } from './CityTransitions.ts';
 
 export class TileSprite extends Phaser.GameObjects.Container {
   public gridX: number;
@@ -9,6 +10,8 @@ export class TileSprite extends Phaser.GameObjects.Container {
 
   private bg: Phaser.GameObjects.Image;
   private waterOverlays: Phaser.GameObjects.Image[] = [];
+  private cityOverlays: Phaser.GameObjects.Image[] = [];
+  private _isOcean = false;
 
   constructor(scene: Phaser.Scene, gridX: number, gridY: number, tileType: string) {
     const px = gridX * TILE_SIZE;
@@ -38,6 +41,7 @@ export class TileSprite extends Phaser.GameObjects.Container {
 
     this.applyTexture(newType);
     this.clearWaterOverlays();
+    this.clearCityOverlays();
   }
 
   flash(duration = 300): void {
@@ -56,6 +60,32 @@ export class TileSprite extends Phaser.GameObjects.Container {
   clearWaterOverlays(): void {
     for (const ov of this.waterOverlays) ov.destroy();
     this.waterOverlays = [];
+  }
+
+  get ocean(): boolean {
+    return this._isOcean;
+  }
+
+  setOcean(): void {
+    this._isOcean = true;
+    this.setVisible(false);
+    this.disableInteractive();
+  }
+
+  clearCityOverlays(): void {
+    for (const ov of this.cityOverlays) ov.destroy();
+    this.cityOverlays = [];
+  }
+
+  applyCityOverlays(specs: CityOverlaySpec[]): void {
+    this.clearCityOverlays();
+    for (const spec of specs) {
+      if (!this.scene.textures.exists(spec.key)) continue;
+      const img = this.scene.add.image(TILE_SIZE / 2, TILE_SIZE / 2, spec.key);
+      img.setDisplaySize(TILE_SIZE, TILE_SIZE);
+      this.add(img);
+      this.cityOverlays.push(img);
+    }
   }
 
   applyWaterOverlays(specs: OverlaySpec[]): void {

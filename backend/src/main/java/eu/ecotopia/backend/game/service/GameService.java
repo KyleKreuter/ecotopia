@@ -211,7 +211,8 @@ public class GameService {
             case SOLAR_FIELD -> 3;
             case FUSION_REACTOR -> 8;
             case RESEARCH_CENTER -> -2;
-            case RESIDENTIAL -> 1;
+            case CITY_INNER -> 2;
+            case CITY_OUTER -> 1;
             default -> 0;
         };
     }
