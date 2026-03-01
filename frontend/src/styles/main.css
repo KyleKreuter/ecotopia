@@ -371,22 +371,103 @@ body {
   z-index: 300;
 }
 
+.gameover-panel .go-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
 .gameover-panel .result-title {
-  font-size: 28px;
+  font-size: 32px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.gameover-panel .go-rank {
+  font-size: 20px;
+  margin-bottom: 4px;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+.gameover-panel .go-rank-desc {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.gameover-panel .go-reason {
+  font-size: 16px;
+  color: #f87171;
   margin-bottom: 16px;
 }
 
-.gameover-panel .result-rank {
-  font-size: 16px;
-  margin-bottom: 24px;
+.gameover-panel .go-round {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 16px;
 }
 
-.gameover-panel .result-stats {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 32px;
+.gameover-panel .go-bars {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 16px;
+}
+
+.gameover-panel .go-resource {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.gameover-panel .go-resource-label {
+  width: 64px;
+  text-align: right;
+  color: #ccc;
+}
+
+.gameover-panel .go-bar-track {
+  flex: 1;
+  height: 10px;
+  background: #333;
+  border: 1px solid #555;
+}
+
+.gameover-panel .go-bar-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.gameover-panel .go-resource-val {
+  width: 28px;
+  text-align: left;
+  color: #ccc;
+}
+
+.gameover-panel .go-approvals {
+  margin-bottom: 20px;
   text-align: center;
-  line-height: 2;
+}
+
+.gameover-panel .go-approvals-title {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gameover-panel .go-citizen {
+  display: inline-block;
+  font-size: 12px;
+  color: #ccc;
+  background: #222;
+  border: 1px solid #444;
+  padding: 2px 8px;
+  margin: 2px;
 }
 
 /* Scrollbar */
