@@ -23,7 +23,7 @@ from pathlib import Path
 
 import torch
 from datasets import Dataset
-from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import HfApi
 from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from trl import SFTConfig, SFTTrainer
@@ -174,4 +174,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-# v3 sdpa fix
+
