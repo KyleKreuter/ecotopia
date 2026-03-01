@@ -1316,3 +1316,148 @@ body {
   border-top: 2px solid #0f3460;
   border-right: 2px solid #0f3460;
 }
+
+/* === TUTORIAL OVERLAY === */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: auto;
+}
+
+.tutorial-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(3px);
+}
+
+.tutorial-card {
+  position: absolute;
+  width: 440px;
+  max-width: 90vw;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(52, 152, 219, 0.2);
+  color: #e0e0e0;
+  z-index: 501;
+  animation: tutorialFadeIn 0.4s ease;
+}
+
+.tutorial-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.tutorial-top { top: 80px; left: 50%; transform: translateX(-50%); }
+.tutorial-bottom { bottom: 80px; left: 50%; transform: translateX(-50%); }
+.tutorial-right { top: 80px; right: 280px; }
+
+.tutorial-step-indicator {
+  font-size: 0.75rem;
+  color: #556;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tutorial-title {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.tutorial-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+.tutorial-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.3s;
+}
+
+.tutorial-dot.active {
+  background: #3498db;
+  box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
+}
+
+.tutorial-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.tutorial-skip {
+  background: none;
+  border: none;
+  color: #556;
+  font-family: 'BitPotionExt', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tutorial-skip:hover { color: #aaa; }
+
+.tutorial-highlighted {
+  position: relative;
+  z-index: 502;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+  border-color: #3498db !important;
+}
+
+@keyframes tutorialFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* === FONT SIZE FIXES === */
+.resource-panel .round-info { font-size: 1.5rem; }
+.resource-bar .bar-label { font-size: 1.1rem; }
+.resource-bar .bar-value { font-size: 1.1rem; }
+.resource-panel .actions-info { font-size: 1.2rem; }
+
+.citizen-panel { font-size: 1.1rem; }
+.citizen-name { font-size: 1.1rem; }
+.citizen-value { font-size: 1.1rem; }
+
+.reaction-panel h3 { font-size: 1.4rem; }
+.reaction-name { font-size: 1.1rem; }
+.reaction-delta { font-size: 1.2rem; }
+.reaction-dialogue { font-size: 1rem; }
+
+.tile-tooltip { font-size: 1.3rem; padding: 8px 14px; }
+
+/* Headers for sidebars */
+.resource-panel::before {
+  content: 'RESOURCES';
+  display: block;
+  font-size: 0.9rem;
+  color: #556;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.citizen-panel::before {
+  content: 'CITIZENS';
+  display: block;
+  font-size: 0.9rem;
+  color: #556;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 12px;
+}
