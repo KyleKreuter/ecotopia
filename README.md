@@ -11,8 +11,6 @@ Ecotopia puts you in charge of a dying city through 7 rounds of ecological crisi
 
 ## Architecture
 
-**Play now:** [ecotopia.nolancacheux.com](https://ecotopia.nolancacheux.com) *(HF endpoints may be paused outside demo/hackathon — credits-based)*
-
 ```
 Speech → FT-Extract (12B) → Contradiction Detection → FT-Citizens (8B) → ElevenLabs TTS → UI
 ```
