@@ -11,11 +11,13 @@ export class SpeechPanel {
     this.el = document.createElement('div');
     this.el.className = 'speech-panel';
     this.el.innerHTML = `
-      <h3>📢 Deliver Your Speech</h3>
-      <textarea placeholder="Address your citizens..."></textarea>
-      <div class="speech-actions">
-        <button class="pixel-btn speech-submit">Deliver Speech</button>
-        <button class="pixel-btn warning end-round" style="display:none">End Round</button>
+      <div class="speech-modal">
+        <h3>Deliver Your Speech</h3>
+        <textarea placeholder="Address your citizens..."></textarea>
+        <div class="speech-actions">
+          <button class="pixel-btn speech-submit">Deliver Speech</button>
+          <button class="pixel-btn warning end-round" style="display:none">End Round</button>
+        </div>
       </div>
     `;
     parent.appendChild(this.el);
@@ -67,6 +69,7 @@ export class SpeechPanel {
     this.submitBtn.disabled = false;
     this.submitBtn.textContent = 'Deliver Speech';
     this.endRoundBtn.style.display = 'none';
+    requestAnimationFrame(() => this.textarea.focus());
   }
 
   showEndRound(): void {

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameState } from '../state/GameStateManager.ts';
 import { eventBus, GameEvents } from '../state/EventBus.ts';
+import { ClickEffect } from '../objects/ClickEffect.ts';
 
 // --- Color palette ---
 const BG_COLOR = 0x0A0E1A;
@@ -72,6 +73,7 @@ export class TitleScene extends Phaser.Scene {
   private streets: StreetSegment[] = [];
   private buildings: BuildingBlock[] = [];
 
+  private clickEffect!: ClickEffect;
   private cityGraphics!: Phaser.GameObjects.Graphics;
   private overlay!: Phaser.GameObjects.Graphics;
   private titleText!: Phaser.GameObjects.Text;
@@ -87,6 +89,8 @@ export class TitleScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     this.cameras.main.setBackgroundColor(BG_COLOR);
+    this.input.setDefaultCursor("url('/assets/ui/cursor_default.png') 1 1, auto");
+    this.clickEffect = new ClickEffect(this);
 
     // Generate city
     this.generateCity(width, height);
@@ -137,7 +141,8 @@ export class TitleScene extends Phaser.Scene {
     this.btnText.on('pointerover', () => this.btnText.setColor('#FFD93D'));
     this.btnText.on('pointerout', () => this.btnText.setColor('#FFFBF1'));
 
-    this.btnText.on('pointerdown', async () => {
+    this.btnText.on('pointerdown', async (_pointer: Phaser.Input.Pointer) => {
+      this.clickEffect.play(this.input.activePointer.x, this.input.activePointer.y);
       this.btnText.setText('LOADING...');
       this.btnText.disableInteractive();
       try {
@@ -153,7 +158,7 @@ export class TitleScene extends Phaser.Scene {
 
     this.versionText = this.add.text(width / 2, height - 30, 'v0.1.0', {
       fontFamily: 'BitPotionExt, monospace',
-      fontSize: '8px',
+      fontSize: '16px',
       color: '#556677',
       stroke: '#0A0E1A',
       strokeThickness: 2,

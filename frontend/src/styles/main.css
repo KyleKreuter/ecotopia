@@ -18,7 +18,7 @@ html, body {
   overflow: hidden;
   font-family: 'BitPotionExt', monospace;
   color: #000;
-  font-size: 10px;
+  font-size: 16px;
 }
 
 body {
@@ -34,6 +34,10 @@ body {
   z-index: 0;
 }
 
+#game-container canvas {
+  cursor: url('/assets/ui/cursor_default.png') 1 1, auto;
+}
+
 #ui-overlay {
   position: absolute;
   top: 0;
@@ -46,6 +50,10 @@ body {
 
 #ui-overlay > * {
   pointer-events: auto;
+}
+
+#ui-overlay > .tile-tooltip {
+  pointer-events: none;
 }
 
 /* Resource Panel - Top Bar */
@@ -64,7 +72,7 @@ body {
 }
 
 .resource-panel .round-info {
-  font-size: 12px;
+  font-size: 20px;
 }
 
 .resource-panel .resources {
@@ -79,13 +87,13 @@ body {
 }
 
 .resource-bar .bar-label {
-  font-size: 8px;
-  min-width: 60px;
+  font-size: 16px;
+  min-width: 80px;
 }
 
 .resource-bar .bar-track {
-  width: 100px;
-  height: 12px;
+  width: 120px;
+  height: 16px;
   background: #fff;
   border: 1px solid #000;
   position: relative;
@@ -98,63 +106,126 @@ body {
 }
 
 .resource-bar .bar-value {
-  font-size: 8px;
-  min-width: 30px;
+  font-size: 16px;
+  min-width: 36px;
   text-align: right;
 }
 
 .resource-panel .actions-info {
-  font-size: 10px;
+  font-size: 16px;
 }
 
-/* Speech Panel */
-.speech-panel {
+/* Citizen Panel - Right Sidebar */
+.citizen-panel {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  top: 52px;
   right: 0;
-  padding: 12px 16px;
+  min-width: 200px;
+  padding: 8px;
   background: rgba(255, 251, 241, 0.95);
-  border-top: 1px solid #000;
+  border-left: 1px solid #000;
+  border-bottom: 1px solid #000;
+  z-index: 20;
+}
+
+.citizen-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.citizen-entry.critical .citizen-name,
+.citizen-entry.critical .citizen-value {
+  color: #a00;
+}
+
+.citizen-entry.critical .citizen-bar-fill {
+  background: #a00;
+}
+
+.citizen-name {
+  min-width: 90px;
+  font-size: 14px;
+}
+
+.citizen-bar-track {
+  width: 80px;
+  height: 10px;
+  background: #fff;
+  border: 1px solid #000;
+}
+
+.citizen-bar-fill {
+  height: 100%;
+  background: #000;
+  transition: width 0.6s ease;
+}
+
+.citizen-value {
+  min-width: 24px;
+  text-align: right;
+  font-size: 14px;
+}
+
+/* Speech Panel - Backdrop */
+.speech-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.3s ease;
 }
 
 .speech-panel.visible {
-  display: block;
+  display: flex;
 }
 
-.speech-panel h3 {
-  font-size: 10px;
-  margin-bottom: 8px;
+/* Speech Panel - Modal */
+.speech-modal {
+  width: 540px;
+  max-width: 90vw;
+  background: #fffbf1;
+  border: 2px solid #000;
+  padding: 24px 32px;
 }
 
-.speech-panel textarea {
+.speech-modal h3 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.speech-modal textarea {
   width: 100%;
-  height: 60px;
+  height: 120px;
   background: #fff;
   border: 1px solid #000;
   color: #000;
   font-family: 'BitPotionExt', monospace;
-  font-size: 8px;
-  padding: 8px;
+  font-size: 20px;
+  padding: 12px;
   resize: none;
   outline: none;
 }
 
-.speech-panel .speech-actions {
+.speech-modal .speech-actions {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .pixel-btn {
   font-family: 'BitPotionExt', monospace;
-  font-size: 8px;
-  padding: 8px 16px;
+  font-size: 16px;
+  padding: 10px 20px;
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  cursor: pointer;
+  cursor: url('/assets/ui/cursor_pointer.png') 1 1, pointer;
   text-transform: uppercase;
 }
 
@@ -200,13 +271,13 @@ body {
 }
 
 .promise-panel h3 {
-  font-size: 9px;
+  font-size: 18px;
   margin-bottom: 6px;
 }
 
 .promise-item {
-  font-size: 7px;
-  padding: 4px 6px;
+  font-size: 14px;
+  padding: 6px 8px;
   margin-bottom: 4px;
   border-left: 3px solid #999;
 }
@@ -224,7 +295,7 @@ body {
   background: #fff;
   border: 2px solid #000;
   padding: 12px 20px;
-  font-size: 8px;
+  font-size: 16px;
   color: #000;
   z-index: 100;
   max-width: 500px;
@@ -258,7 +329,7 @@ body {
 }
 
 .round-overlay .round-sub {
-  font-size: 10px;
+  font-size: 18px;
   color: #666;
 }
 
@@ -288,7 +359,7 @@ body {
 }
 
 .gameover-panel .result-stats {
-  font-size: 9px;
+  font-size: 16px;
   color: #666;
   margin-bottom: 32px;
   text-align: center;
@@ -311,4 +382,33 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Tile Tooltip */
+.tile-tooltip {
+  position: fixed;
+  font-family: 'BitPotionExt', monospace;
+  font-size: 40px;
+  background: rgba(255, 251, 241, 0.95);
+  border: 2px solid #000;
+  padding: 12px 24px;
+  pointer-events: none;
+  z-index: 150;
+  white-space: nowrap;
+}
+
+.tile-tooltip .edit-icon {
+  margin-right: 2px;
+}
+
+.tile-tooltip.editable .edit-icon {
+  color: #000;
+}
+
+.tile-tooltip.locked .edit-icon {
+  color: #999;
+}
+
+.tile-tooltip.loading .edit-icon {
+  color: #666;
 }

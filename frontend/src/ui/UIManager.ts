@@ -1,6 +1,7 @@
 import type { GameStateResponse, SpeechResponse } from '../types/backend.ts';
 import { eventBus, GameEvents } from '../state/EventBus.ts';
 import { ResourcePanel } from './ResourcePanel.ts';
+import { CitizenPanel } from './CitizenPanel.ts';
 import { SpeechPanel } from './SpeechPanel.ts';
 import { PromisePanel } from './PromisePanel.ts';
 import { ContradictionAlert } from './ContradictionAlert.ts';
@@ -8,6 +9,7 @@ import { ContradictionAlert } from './ContradictionAlert.ts';
 export class UIManager {
   private overlay: HTMLElement;
   private resourcePanel: ResourcePanel;
+  private citizenPanel: CitizenPanel;
   private speechPanel: SpeechPanel;
   private promisePanel: PromisePanel;
   private contradictionAlert: ContradictionAlert;
@@ -16,6 +18,7 @@ export class UIManager {
     this.overlay = document.getElementById('ui-overlay')!;
 
     this.resourcePanel = new ResourcePanel(this.overlay);
+    this.citizenPanel = new CitizenPanel(this.overlay);
     this.speechPanel = new SpeechPanel(this.overlay);
     this.promisePanel = new PromisePanel(this.overlay);
     this.contradictionAlert = new ContradictionAlert(this.overlay);
@@ -43,11 +46,13 @@ export class UIManager {
 
   updateAll(state: GameStateResponse): void {
     this.resourcePanel.update(state);
+    this.citizenPanel.update(state.citizens);
     this.promisePanel.update(state.promises);
   }
 
   destroy(): void {
     this.resourcePanel.destroy();
+    this.citizenPanel.destroy();
     this.speechPanel.destroy();
     this.promisePanel.destroy();
     this.contradictionAlert.destroy();

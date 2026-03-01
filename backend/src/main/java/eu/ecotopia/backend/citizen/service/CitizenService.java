@@ -41,7 +41,9 @@ public class CitizenService {
         if (action == TileActionType.REPLACE_WITH_SOLAR) {
             // First, spawn the destruction citizen based on the old tile type
             buildDestructionCitizen(previousTileType).ifPresent(citizen -> {
-                if (canAddDynamicCitizen(game)) {
+                if (citizenAlreadyExists(game, citizen.getName())) {
+                    log.info("Skipping destruction citizen '{}' spawn: already exists", citizen.getName());
+                } else if (canAddDynamicCitizen(game)) {
                     game.addCitizen(citizen);
                     spawned.add(citizen);
                     applySolidarityEffects(game, citizen);
@@ -53,7 +55,9 @@ public class CitizenService {
 
             // Then, spawn Lena (solar technician)
             Citizen lena = buildLena();
-            if (canAddDynamicCitizen(game)) {
+            if (citizenAlreadyExists(game, lena.getName())) {
+                log.info("Skipping Lena spawn: already exists");
+            } else if (canAddDynamicCitizen(game)) {
                 game.addCitizen(lena);
                 spawned.add(lena);
                 applySolidarityEffects(game, lena);
@@ -68,7 +72,9 @@ public class CitizenService {
         // Standard spawn logic for other actions
         Optional<Citizen> citizen = buildCitizenForAction(previousTileType, action);
         citizen.ifPresent(c -> {
-            if (canAddDynamicCitizen(game)) {
+            if (citizenAlreadyExists(game, c.getName())) {
+                log.info("Skipping citizen '{}' spawn: already exists", c.getName());
+            } else if (canAddDynamicCitizen(game)) {
                 game.addCitizen(c);
                 spawned.add(c);
                 applySolidarityEffects(game, c);
@@ -164,6 +170,13 @@ public class CitizenService {
      */
     private boolean canAddDynamicCitizen(Game game) {
         return game.getCitizens().size() < MAX_CITIZENS;
+    }
+
+    /**
+     * Checks whether a citizen with the given name already exists in the game.
+     */
+    private boolean citizenAlreadyExists(Game game, String name) {
+        return findCitizenByName(game, name).isPresent();
     }
 
     /**

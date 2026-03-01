@@ -60,12 +60,15 @@ export interface MultiTileSize {
 }
 
 export const MULTI_TILE_SIZES: Record<string, MultiTileSize> = {
-  FACTORY:        { w: 2, h: 1 },
-  CLEAN_FACTORY:  { w: 2, h: 1 },
-  SOLAR_FIELD:    { w: 2, h: 1 },
-  OIL_REFINERY:   { w: 2, h: 2 },
-  COAL_PLANT:     { w: 2, h: 2 },
-  FUSION_REACTOR: { w: 2, h: 2 },
+  FACTORY:         { w: 2, h: 2 },
+  CLEAN_FACTORY:   { w: 2, h: 2 },
+  SOLAR_FIELD:     { w: 2, h: 2 },
+  OIL_REFINERY:    { w: 2, h: 2 },
+  COAL_PLANT:      { w: 2, h: 2 },
+  FUSION_REACTOR:  { w: 2, h: 2 },
+  NUCLEAR_PLANT:   { w: 2, h: 2 },
+  WIND_FARM:       { w: 2, h: 2 },
+  RESEARCH_CENTER: { w: 2, h: 2 },
 };
 
 // ---------------------------------------------------------------------------

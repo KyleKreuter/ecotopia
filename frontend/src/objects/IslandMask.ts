@@ -7,16 +7,16 @@ import { GRID_SIZE } from '../config.ts';
 // Creates rounded corners by removing corner cells.
 
 const MASK: boolean[][] = [
-  [false, false, true,  true,  true,  true,  true,  true,  false, false], // row 0
-  [false, true,  true,  true,  true,  true,  true,  true,  true,  false], // row 1
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 2
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 3
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 4
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 5
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 6
-  [true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  // row 7
-  [false, true,  true,  true,  true,  true,  true,  true,  true,  false], // row 8
-  [false, false, true,  true,  true,  true,  true,  true,  false, false], // row 9
+  [true, true, true, true, true, true, true, true, true, true], // row 0
+  [true, true, true, true, true, true, true, true, true, true], // row 1
+  [true, true, true, true, true, true, true, true, true, true], // row 2
+  [true, true, true, true, true, true, true, true, true, true], // row 3
+  [true, true, true, true, true, true, true, true, true, true], // row 4
+  [true, true, true, true, true, true, true, true, true, true], // row 5
+  [true, true, true, true, true, true, true, true, true, true], // row 6
+  [true, true, true, true, true, true, true, true, true, true], // row 7
+  [true, true, true, true, true, true, true, true, true, true], // row 8
+  [true, true, true, true, true, true, true, true, true, true], // row 9
 ];
 
 export const ISLAND_MASK: readonly boolean[][] = MASK;
