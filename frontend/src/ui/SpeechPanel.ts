@@ -11,6 +11,7 @@ export class SpeechPanel {
   private endRoundBtn!: HTMLButtonElement;
   private contextHint!: HTMLDivElement;
   private charCount!: HTMLDivElement;
+  private errorDiv!: HTMLDivElement;
 
   /** Extract base name for avatar (handles "Dr. Yuki" -> "yuki"). */
   private avatarKey(name: string): string {
@@ -23,10 +24,14 @@ export class SpeechPanel {
     this.el.className = 'speech-panel';
     this.el.innerHTML = `
       <div class="speech-modal">
-        <h3>Deliver Your Speech</h3>
+        <h3>🎙️ Deliver Your Speech</h3>
         <div class="speech-context"></div>
         <textarea placeholder="Address your citizens..." maxlength="${SpeechPanel.MAX_CHARS}"></textarea>
         <div class="speech-charcount">0 / ${SpeechPanel.MAX_CHARS} characters</div>
+        <div class="speech-error" style="display:none">
+          <span class="speech-error-msg"></span>
+          <button class="pixel-btn danger speech-retry">Retry</button>
+        </div>
         <div class="speech-actions">
           <button class="pixel-btn speech-submit">Deliver Speech</button>
           <button class="pixel-btn warning end-round" style="display:none">End Round</button>
@@ -40,10 +45,12 @@ export class SpeechPanel {
     this.endRoundBtn = this.el.querySelector('.end-round')!;
     this.contextHint = this.el.querySelector('.speech-context')!;
     this.charCount = this.el.querySelector('.speech-charcount')!;
+    this.errorDiv = this.el.querySelector('.speech-error')!;
 
     this.submitBtn.addEventListener('click', () => this.handleSubmit());
     this.endRoundBtn.addEventListener('click', () => this.handleEndRound());
     this.textarea.addEventListener('input', () => this.updateCharCount());
+    this.el.querySelector('.speech-retry')!.addEventListener('click', () => this.handleSubmit());
   }
 
   private async handleSubmit(): Promise<void> {
@@ -53,6 +60,7 @@ export class SpeechPanel {
     this.submitBtn.disabled = true;
     this.submitBtn.textContent = 'Analyzing speech...';
     this.submitBtn.classList.add('loading');
+    this.errorDiv.style.display = 'none';
 
     try {
       await gameState.submitSpeech(text);
@@ -61,9 +69,11 @@ export class SpeechPanel {
       this.submitBtn.classList.add('success');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Speech failed';
-      this.submitBtn.textContent = 'Retry';
+      this.submitBtn.textContent = 'Deliver Speech';
       this.submitBtn.disabled = false;
       this.submitBtn.classList.remove('loading');
+      this.errorDiv.style.display = 'flex';
+      this.errorDiv.querySelector('.speech-error-msg')!.textContent = msg;
       eventBus.emit(GameEvents.ERROR, msg);
     }
   }
@@ -85,7 +95,10 @@ export class SpeechPanel {
 
   private updateCharCount(): void {
     const len = this.textarea.value.length;
+    const ratio = len / SpeechPanel.MAX_CHARS;
     this.charCount.textContent = `${len} / ${SpeechPanel.MAX_CHARS} characters`;
+    this.charCount.classList.toggle('warn', ratio > 0.7 && ratio <= 0.9);
+    this.charCount.classList.toggle('over', ratio > 0.9);
   }
 
   private populateContext(): void {
@@ -138,6 +151,7 @@ export class SpeechPanel {
     this.submitBtn.textContent = 'Deliver Speech';
     this.submitBtn.classList.remove('success', 'loading');
     this.endRoundBtn.style.display = 'none';
+    this.errorDiv.style.display = 'none';
     this.updateCharCount();
     this.populateContext();
     requestAnimationFrame(() => this.textarea.focus());

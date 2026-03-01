@@ -18,7 +18,7 @@ export class ContradictionAlert {
           <strong class="contradiction-title">Contradiction Detected</strong>
           <span class="contradiction-desc">${c.description}</span>
           <span class="contradiction-quote">
-            "${c.speechQuote}" vs ${c.contradictingAction}
+            \u201C${c.speechQuote}\u201D vs ${c.contradictingAction}
           </span>
         </div>
       `;

@@ -33,8 +33,11 @@ export class TileGrid {
     const cam = this.scene.cameras.main;
     const totalW = GRID_SIZE * TILE_SIZE;
     const totalH = GRID_SIZE * TILE_SIZE;
-    this.originX = Math.floor((cam.width - totalW) / 2);
-    this.originY = Math.floor((cam.height - totalH) / 2);
+    // Offset center to account for left sidebar (220px) and right sidebar (260px)
+    const centerX = 220 + (cam.width - 220 - 260) / 2;
+    const centerY = 56 + (cam.height - 56) / 2;
+    this.originX = Math.floor(centerX - totalW / 2);
+    this.originY = Math.floor(centerY - totalH / 2);
   }
 
   private createGrid(): void {

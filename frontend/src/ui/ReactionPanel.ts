@@ -72,7 +72,8 @@ export class ReactionPanel {
         <div class="reaction-card-header">
           <img class="citizen-avatar reacting ${glowClass}"
                src="/assets/character/${avatarKey}.png"
-               alt="${r.citizenName}" width="48" height="48">
+               alt="${r.citizenName}" width="48" height="48"
+               onerror="this.style.display='none'">
           <div class="reaction-card-info">
             <span class="reaction-name">${r.citizenName} ${hasAudio}</span>
             <span class="reaction-tone" style="color:${dotColor}">
