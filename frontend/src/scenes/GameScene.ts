@@ -4,6 +4,7 @@ import { TileCursor } from '../objects/TileCursor.ts';
 import { TileTooltip } from '../objects/TileTooltip.ts';
 import { ActionMenu } from '../objects/ActionMenu.ts';
 import { ParticleEffects } from '../objects/ParticleEffects.ts';
+import { WalkingCitizens } from '../objects/WalkingCitizens.ts';
 import { ClickEffect } from '../objects/ClickEffect.ts';
 import { gameState } from '../state/GameStateManager.ts';
 import { TileActionCache } from '../state/TileActionCache.ts';
@@ -21,6 +22,7 @@ export class GameScene extends Phaser.Scene {
   private clickEffect!: ClickEffect;
   private uiManager!: UIManager;
   private actionCache!: TileActionCache;
+  private walkingCitizens!: WalkingCitizens;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -37,6 +39,7 @@ export class GameScene extends Phaser.Scene {
     this.particles = new ParticleEffects(this, this.grid);
     this.clickEffect = new ClickEffect(this);
     this.actionCache = new TileActionCache();
+    this.walkingCitizens = new WalkingCitizens(this, this.grid);
 
     this.uiManager = new UIManager();
 
@@ -181,6 +184,7 @@ export class GameScene extends Phaser.Scene {
     this.tooltip.hide();
     this.actionMenu.hide();
     this.tooltip.destroy();
+    this.walkingCitizens?.destroy();
     this.uiManager.destroy();
     eventBus.clear();
   }
