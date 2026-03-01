@@ -1,8 +1,9 @@
-"""Full benchmark: base vs fine-tuned models on extraction and citizens tasks.
+"""Full benchmark: base models on extraction task.
 
-Evaluates Ministral 8B, Mistral Small, Mistral Large on our validation sets.
-Logs all results to W&B with comparison tables.
+Evaluates Ministral 8B, Mistral Small, Mistral Large on validation set.
+Logs all results to W&B with comparison tables and summary metrics.
 """
+
 import json
 import os
 import time
@@ -11,9 +12,16 @@ from pathlib import Path
 import wandb
 from mistralai import Mistral
 
+MODELS = [
+    ("ministral-8b-latest", "Ministral 8B (base)"),
+    ("mistral-small-latest", "Mistral Small 22B (base)"),
+    ("mistral-large-latest", "Mistral Large (base)"),
+]
+METRIC_KEYS = ["promise_count_correct", "type_precision", "contradiction_correct", "valid_json"]
 
-def evaluate_extraction(client, model_id: str, label: str, examples: list[dict]) -> dict:
-    """Evaluate a model on extraction task."""
+
+def evaluate_extraction(client: Mistral, model_id: str, label: str, examples: list[dict]) -> dict:
+    """Evaluate a model on extraction task, returning counts and percentages."""
     results = {
         "model": label,
         "promise_count_correct": 0,
@@ -26,9 +34,7 @@ def evaluate_extraction(client, model_id: str, label: str, examples: list[dict])
     }
 
     for i, ex in enumerate(examples):
-        system_msg = ""
-        user_msg = ""
-        expected = ""
+        system_msg = user_msg = expected = ""
         for msg in ex.get("messages", []):
             if msg["role"] == "system":
                 system_msg = msg["content"]
@@ -47,40 +53,27 @@ def evaluate_extraction(client, model_id: str, label: str, examples: list[dict])
                 ],
                 response_format={"type": "json_object"},
             )
-            latency = time.time() - start
-            results["latencies"].append(latency)
+            results["latencies"].append(time.time() - start)
 
             content = response.choices[0].message.content
-
             try:
                 pred = json.loads(content)
                 results["valid_json"] += 1
 
                 exp = json.loads(expected)
 
-                # Promise count
-                pred_count = len(pred.get("promises", []))
-                exp_count = len(exp.get("promises", []))
-                if pred_count == exp_count:
+                if len(pred.get("promises", [])) == len(exp.get("promises", [])):
                     results["promise_count_correct"] += 1
 
-                # Type precision
-                pred_types = set(p.get("type", "") for p in pred.get("promises", []))
-                exp_types = set(p.get("type", "") for p in exp.get("promises", []))
-                if pred_types == exp_types:
+                if set(p.get("type", "") for p in pred.get("promises", [])) == set(p.get("type", "") for p in exp.get("promises", [])):
                     results["type_precision"] += 1
 
-                # Contradiction detection
-                pred_contras = len(pred.get("contradictions", []))
-                exp_contras = len(exp.get("contradictions", []))
-                if (pred_contras > 0) == (exp_contras > 0):
+                if (len(pred.get("contradictions", [])) > 0) == (len(exp.get("contradictions", [])) > 0):
                     results["contradiction_correct"] += 1
-
             except json.JSONDecodeError:
                 pass
 
             time.sleep(0.3)
-
             if (i + 1) % 10 == 0:
                 print(f"  {label}: {i+1}/{len(examples)}")
 
@@ -89,7 +82,6 @@ def evaluate_extraction(client, model_id: str, label: str, examples: list[dict])
             print(f"  Error on example {i}: {e}")
             time.sleep(1)
 
-    # Calculate percentages
     total = results["total"]
     results["promise_count_pct"] = results["promise_count_correct"] / total * 100 if total else 0
     results["type_precision_pct"] = results["type_precision"] / total * 100 if total else 0
@@ -102,14 +94,12 @@ def evaluate_extraction(client, model_id: str, label: str, examples: list[dict])
 
 def main():
     """Run full benchmark across all models and log to W&B."""
-    api_key = os.environ.get("MISTRAL_API_KEY", "")
+    api_key = os.environ.get("MISTRAL_API_KEY")
     if not api_key:
-        print("MISTRAL_API_KEY required")
-        return
+        raise ValueError("MISTRAL_API_KEY environment variable not set")
 
     client = Mistral(api_key=api_key)
 
-    # Load extraction validation data
     val_path = Path("training/data/extraction/splits/validation.jsonl")
     examples = []
     with open(val_path) as f:
@@ -118,7 +108,6 @@ def main():
                 examples.append(json.loads(line))
     print(f"Loaded {len(examples)} extraction validation examples")
 
-    # Init W&B
     run = wandb.init(
         project="hackathon-london-nolan-2026",
         name="full-benchmark-extraction",
@@ -126,29 +115,8 @@ def main():
         tags=["benchmark", "extraction", "comparison"],
     )
 
-    # Models to evaluate
-    models = [
-        ("ministral-8b-latest", "Ministral 8B (base)"),
-        ("mistral-small-latest", "Mistral Small 22B (base)"),
-        ("mistral-large-latest", "Mistral Large (base)"),
-    ]
-
     all_results = []
-
-    # Hardcoded FT results from previous eval
-    ft_result = {
-        "model": "Ministral 8B (FT - ours)",
-        "promise_count_pct": 100.0,
-        "type_precision_pct": 100.0,
-        "contradiction_pct": 100.0,
-        "valid_json_pct": 100.0,
-        "avg_latency": 0.8,
-        "total": 40,
-        "errors": 0,
-    }
-    all_results.append(ft_result)
-
-    for model_id, label in models:
+    for model_id, label in MODELS:
         print(f"\nEvaluating {label}...")
         result = evaluate_extraction(client, model_id, label, examples)
         all_results.append(result)
@@ -158,10 +126,9 @@ def main():
         print(f"  Valid JSON: {result['valid_json_pct']:.1f}%")
         print(f"  Avg latency: {result['avg_latency']:.3f}s")
 
-    # Log to W&B
     table = wandb.Table(
         columns=["Model", "Promise Count %", "Type Precision %",
-                 "Contradiction %", "Valid JSON %", "Avg Latency (s)", "Errors"]
+                 "Contradiction %", "Valid JSON %", "Avg Latency (s)", "Errors"],
     )
     for r in all_results:
         table.add_data(
@@ -170,13 +137,11 @@ def main():
             round(r["type_precision_pct"], 1),
             round(r["contradiction_pct"], 1),
             round(r["valid_json_pct"], 1),
-            round(r.get("avg_latency", 0), 3),
-            r.get("errors", 0),
+            round(r["avg_latency"], 3),
+            r["errors"],
         )
-
     run.log({"extraction_benchmark": table})
 
-    # Log summary metrics
     for r in all_results:
         prefix = r["model"].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").lower()
         run.summary[f"{prefix}/promise_count"] = r["promise_count_pct"]
@@ -186,7 +151,6 @@ def main():
 
     run.finish()
     print(f"\nW&B run: {run.url}")
-    print("\nDone!")
 
 
 if __name__ == "__main__":
