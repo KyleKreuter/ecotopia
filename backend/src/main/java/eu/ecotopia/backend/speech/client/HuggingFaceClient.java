@@ -65,7 +65,7 @@ public class HuggingFaceClient {
         log.debug("Calling HF endpoint: {} (max_tokens={}, temp={})", endpointUrl, maxTokens, temperature);
 
         // Retry logic for scale-to-zero cold starts (503 errors)
-        int maxRetries = 3;
+        int maxRetries = 10;
         long retryDelayMs = 30_000;
 
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
