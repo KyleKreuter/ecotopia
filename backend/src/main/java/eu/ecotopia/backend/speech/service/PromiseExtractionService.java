@@ -11,6 +11,7 @@ import eu.ecotopia.backend.promise.repository.PromiseRepository;
 import eu.ecotopia.backend.round.model.GameRound;
 import eu.ecotopia.backend.speech.model.AiExtractionResponse;
 import eu.ecotopia.backend.speech.model.AiPromise;
+import eu.ecotopia.backend.speech.client.HuggingFaceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -23,15 +24,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Service responsible for extracting promises and detecting contradictions from player speeches
- * using Spring AI ChatClient. Combines both extraction and contradiction detection in a single
- * AI call for efficiency.
+ * Service responsible for extracting promises and detecting contradictions from player speeches.
+ * Uses HuggingFace custom endpoints when configured, falls back to Spring AI ChatClient.
  */
 @Service
 @Slf4j
 public class PromiseExtractionService {
 
     private final ChatClient chatClient;
+    private final HuggingFaceClient hfClient;
     private final ObjectMapper objectMapper;
     private final PromiseRepository promiseRepository;
     private final CitizenRepository citizenRepository;
@@ -39,12 +40,20 @@ public class PromiseExtractionService {
     @Value("${ecotopia.ai.extraction-model:}")
     private String extractionModel;
 
+    @Value("${ecotopia.ai.extraction-endpoint:}")
+    private String extractionEndpoint;
+
+    @Value("${ecotopia.ai.hf-token:}")
+    private String hfToken;
+
     public PromiseExtractionService(
             ChatClient.Builder chatClientBuilder,
+            HuggingFaceClient hfClient,
             ObjectMapper objectMapper,
             PromiseRepository promiseRepository,
             CitizenRepository citizenRepository) {
         this.chatClient = chatClientBuilder.build();
+        this.hfClient = hfClient;
         this.objectMapper = objectMapper;
         this.promiseRepository = promiseRepository;
         this.citizenRepository = citizenRepository;
@@ -95,15 +104,24 @@ public class PromiseExtractionService {
 
         log.debug("Sending extraction prompt for game {} round {}", game.getId(), game.getCurrentRound());
 
-        var requestSpec = chatClient.prompt()
-                .system(SYSTEM_PROMPT)
-                .user(userPrompt);
+        String response;
 
-        if (extractionModel != null && !extractionModel.isBlank()) {
-            requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(extractionModel).build());
+        if (extractionEndpoint != null && !extractionEndpoint.isBlank()) {
+            // Use fine-tuned HuggingFace endpoint
+            log.info("Using HF extraction endpoint: {}", extractionEndpoint);
+            response = hfClient.chat(extractionEndpoint, hfToken, SYSTEM_PROMPT, userPrompt, 512, 0.3);
+        } else {
+            // Fallback to Spring AI ChatClient
+            var requestSpec = chatClient.prompt()
+                    .system(SYSTEM_PROMPT)
+                    .user(userPrompt);
+
+            if (extractionModel != null && !extractionModel.isBlank()) {
+                requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(extractionModel).build());
+            }
+
+            response = requestSpec.call().content();
         }
-
-        String response = requestSpec.call().content();
 
         log.debug("AI extraction response: {}", response);
 
