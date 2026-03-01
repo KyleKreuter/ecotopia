@@ -126,6 +126,25 @@ export class ReactionPanel {
     });
   }
 
+  /** Show an End Round button at the bottom of the reaction panel. */
+  showEndRound(onEndRound: () => void): void {
+    const existing = this.el.querySelector('.reaction-end-round');
+    if (existing) return;
+    const btn = document.createElement('button');
+    btn.className = 'pixel-btn warning reaction-end-round';
+    btn.textContent = 'End Round';
+    btn.style.marginTop = '12px';
+    btn.style.width = '100%';
+    btn.style.fontSize = '1.1rem';
+    btn.style.padding = '10px';
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Ending...';
+      onEndRound();
+    });
+    this.el.appendChild(btn);
+  }
+
   destroy(): void {
     this.currentAudio?.pause();
     this.el.remove();

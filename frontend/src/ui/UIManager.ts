@@ -60,13 +60,22 @@ export class UIManager {
 
     eventBus.on(GameEvents.SPEECH_RESPONSE, (response: unknown) => {
       const r = response as SpeechResponse;
+      // Hide speech modal so reactions are visible
+      this.speechPanel.hide();
       if (r.contradictions.length > 0) {
         this.contradictionAlert.show(r.contradictions);
       }
       if (r.citizenReactions.length > 0) {
         this.reactionPanel.show(r.citizenReactions);
       }
-      this.speechPanel.showEndRound();
+      // Show end round button in the reaction panel area instead
+      this.reactionPanel.showEndRound(() => {
+        this.reactionPanel.hide();
+        gameState.endRound().catch(err => {
+          const msg = err instanceof Error ? err.message : 'End round failed';
+          eventBus.emit(GameEvents.ERROR, msg);
+        });
+      });
     });
   }
 

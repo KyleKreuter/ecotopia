@@ -30,9 +30,9 @@ export class ActionMenu {
     const menuHeight = actions.length * itemHeight + 12;
 
     const bg = this.scene.add.graphics();
-    bg.fillStyle(0xffffff, 0.95);
+    bg.fillStyle(0x1a1a2e, 0.97);
     bg.fillRect(0, 0, menuWidth, menuHeight);
-    bg.lineStyle(1, 0x000000, 1);
+    bg.lineStyle(2, 0x0f3460, 1);
     bg.strokeRect(0, 0, menuWidth, menuHeight);
     this.container.add(bg);
 
@@ -41,11 +41,11 @@ export class ActionMenu {
       const text = this.scene.add.text(12, 6 + i * itemHeight, label, {
         fontFamily: 'BitPotionExt, monospace',
         fontSize: '18px',
-        color: '#000000',
+        color: '#e0e0e0',
       }).setInteractive({ useHandCursor: true });
 
-      text.on('pointerover', () => text.setColor('#666666'));
-      text.on('pointerout', () => text.setColor('#000000'));
+      text.on('pointerover', () => text.setColor('#3498db'));
+      text.on('pointerout', () => text.setColor('#e0e0e0'));
       text.on('pointerup', () => {
         const cb = this.onSelect;
         this.hide();
