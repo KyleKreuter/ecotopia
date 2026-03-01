@@ -12,82 +12,119 @@ Ecotopia puts you in charge of a dying city through 7 rounds of ecological crisi
 ## Architecture
 
 ```
-Speech → FT-Extract (8B/12B) → Game Engine → FT-Citizens (24B) → TTS → UI
+Speech → FT-Extract (8B) → Contradiction Detection → FT-Citizens (24B) → ElevenLabs TTS → UI
 ```
 
 | Stage | Description |
 |-------|-------------|
 | Speech Input | Player types a free-text speech |
-| FT-Extract | Fine-tuned Ministral 8B/Nemo 12B extracts promises and contradictions (JSON) |
+| FT-Extract | Fine-tuned Ministral 8B extracts promises with deadlines and detects contradictions (JSON) |
 | Game Engine | Deterministic state updates: ecology, economy, research scores |
-| FT-Citizens | Fine-tuned Mistral Small 22B generates citizen reactions and approval changes |
-| TTS | ElevenLabs gives each citizen a unique voice |
-| UI | React frontend with speech bubbles, animations, updated game state |
+| FT-Citizens | Fine-tuned Mistral Small 22B generates citizen reactions, dialogues, and approval deltas |
+| TTS | ElevenLabs gives each citizen a unique voice (10 voice profiles) |
+| UI | Phaser 3 pixel art frontend with tile grid, citizen sprites, and speech bubbles |
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | React, TypeScript, Vite |
-| Backend | Spring Boot, Spring AI (Mistral integration) |
-| AI Models | Fine-tuned Mistral via LoRA/QLoRA on HuggingFace |
-| TTS | ElevenLabs (unique voice per citizen) |
-| Monitoring | Weights & Biases (training metrics + Weave tracing) |
+| Frontend | Phaser 3, TypeScript, Vite, Pixel Art |
+| Backend | Spring Boot 3.5, Spring AI, PostgreSQL |
+| AI Models | Fine-tuned Mistral via QLoRA on HuggingFace Inference Endpoints |
+| TTS | ElevenLabs Turbo v2.5 (unique voice per citizen) |
+| Monitoring | Weights & Biases (training metrics + evaluation) |
 
 ## Fine-Tuned Models
 
-| Model | Task | HuggingFace |
-|-------|------|-------------|
-| ecotopia-extract-ministral-8b | Promise extraction (8B LoRA) | [Link](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-ministral-8b) |
-| ecotopia-extract-nemo-12b | Promise extraction (12B) | [Link](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-nemo-12b) |
-| ecotopia-citizens-small-22b | Citizen reactions (22B) | [Link](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-small-22b) |
+| Model | Task | Base | HuggingFace |
+|-------|------|------|-------------|
+| ecotopia-extract-ministral-8b | Promise extraction | Ministral 8B Instruct | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-ministral-8b) / [Merged](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-8b-merged) |
+| ecotopia-extract-nemo-12b | Promise extraction | Mistral Nemo 12B | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-nemo-12b) |
+| ecotopia-citizens-small-22b | Citizen reactions | Mistral Small 22B | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-small-22b) / [Merged](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-24b-merged) |
 
 **Datasets:**
-- [ecotopia-extraction-dataset](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-extraction-dataset)
-- [ecotopia-citizens-dataset](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-citizens-dataset)
+- [ecotopia-extraction-dataset](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-extraction-dataset) (300 examples)
+- [ecotopia-citizens-dataset](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-citizens-dataset) (390 examples)
 
-## Run Locally
+## Setup
+
+### Prerequisites
+- Java 21+
+- Docker (for PostgreSQL)
+- Node.js 18+ (for frontend)
+
+### Quick Start
 
 ```bash
-# Frontend
-cd frontend && npm install && npm run dev
+# 1. Copy environment variables
+cp .env.example .env
+# Edit .env with your API keys
 
-# API server (FastAPI + Weave tracing)
-cd api && pip install -r requirements.txt && python server.py
+# 2. Start database
+cd backend && docker compose up -d
 
-# Backend (Spring Boot)
+# 3. Start backend (port 7777)
 cd backend && ./mvnw spring-boot:run
+
+# 4. Start frontend (port 5173)
+cd frontend && npm install && npm run dev
 ```
 
 Open `http://localhost:5173` in your browser.
 
-## Inference Endpoints (HuggingFace)
+### Environment Variables
 
-Both fine-tuned models are deployed on HuggingFace Inference Endpoints with NF4 quantization. Endpoints scale to zero when idle (15 min timeout).
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `EXTRACTION_ENDPOINT` | Yes | HuggingFace endpoint URL for 8B extraction model |
+| `CITIZEN_ENDPOINT` | Yes | HuggingFace endpoint URL for 24B citizen model |
+| `HF_TOKEN` | Yes | HuggingFace API token (for endpoint auth) |
+| `ELEVENLABS_API_KEY` | No | ElevenLabs API key (enables citizen voice TTS) |
+| `DB_USERNAME` | No | PostgreSQL username (default: ecotopia) |
+| `DB_PASSWORD` | No | PostgreSQL password (default: ecotopia) |
 
-| Model | HF Repo |
-|-------|---------|
-| 8B Extract (Ministral 8B) | `mistral-hackaton-2026/ecotopia-extract-8b-merged` |
-| 24B Citizens (Mistral Small) | `mistral-hackaton-2026/ecotopia-citizens-24b-merged` |
+### API Endpoints
 
-Endpoint URLs are private. Set `EXTRACT_ENDPOINT_URL` and `CITIZENS_ENDPOINT_URL` as environment variables.
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/games` | Create a new game |
+| GET | `/api/games/{id}` | Get game state (resources, citizens, tiles) |
+| POST | `/api/games/{id}/speech` | Submit speech (triggers AI extraction + reactions + TTS) |
+| POST | `/api/games/{id}/end-round` | End current round, advance to next |
+| GET | `/api/games/{id}/promises` | List all tracked promises |
+| POST | `/api/games/{id}/tiles/{tileId}/action` | Execute tile action |
 
-```bash
-curl $EXTRACT_ENDPOINT_URL \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $HF_TOKEN" \
-  -d '{
-    "inputs": [
-      {"role": "system", "content": "Extract promises from the mayor speech as JSON."},
-      {"role": "user", "content": "I will build solar panels by round 3."}
-    ],
-    "parameters": {"max_new_tokens": 512, "temperature": 0.3}
-  }'
+### Speech Response Format
+
+```json
+{
+  "extractedPromises": [
+    {"id": 1, "text": "build wind farms", "deadline": 3, "status": "ACTIVE"}
+  ],
+  "contradictions": [
+    {"description": "Promises forests while building coal plants", "severity": "high"}
+  ],
+  "citizenReactions": [
+    {
+      "citizenName": "Karl",
+      "dialogue": "Wind farms won't replace factory jobs.",
+      "tone": "suspicious",
+      "approvalDelta": -3,
+      "audioBase64": "base64_encoded_mp3..."
+    }
+  ]
+}
 ```
+
+### HuggingFace Endpoints
+
+Both fine-tuned models are deployed on HuggingFace Inference Endpoints with NF4 4-bit quantization via custom `handler.py`. Endpoints scale to zero after 15 minutes of inactivity.
+
+**Cold start warning:** First request after idle takes ~5 minutes. The backend retries automatically (10x with 30s delay).
 
 ## W&B Report
 
-Full training metrics, evaluation benchmarks, and Weave traces:
+Full training metrics, evaluation benchmarks, and model comparisons:
 
 [Ecotopia: Fine-Tuning Mistral for Political Simulation](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia:-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NzA3OA==)
 
