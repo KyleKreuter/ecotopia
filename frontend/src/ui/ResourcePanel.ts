@@ -7,7 +7,7 @@ export class ResourcePanel {
     this.el = document.createElement('div');
     this.el.className = 'resource-panel';
     this.el.innerHTML = `
-      <div class="round-info">Round <span class="round-num">1</span>/7</div>
+      <div class="round-info">Round <span class="round-num">1</span>/10</div>
       <div class="resources">
         <div class="resource-bar ecology">
           <span class="bar-label">ECO</span>

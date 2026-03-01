@@ -57,7 +57,7 @@ public class GameInitializer {
                 .profession("Climate Activist")
                 .age(24)
                 .personality("Idealistic, impatient, passionate. Values: immediate climate action, biodiversity, generational justice.")
-                .approval(35)
+                .approval(45)
                 .build());
 
         game.addCitizen(Citizen.builder()
@@ -66,7 +66,7 @@ public class GameInitializer {
                 .profession("Opposition Politician")
                 .age(42)
                 .personality("Strategic, opportunistic, sharp-tongued. Exploits the mayor's weaknesses, quotes verbatim, instrumentalizes suffering.")
-                .approval(25)
+                .approval(35)
                 .build());
 
         game.addRound(GameRound.builder()

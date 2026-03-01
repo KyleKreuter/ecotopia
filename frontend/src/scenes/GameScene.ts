@@ -56,13 +56,21 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       const state = gameState.gameState;
       if (state && state.currentRoundInfo.remainingActions === 0) {
+        this.cursor.hide();
         this.tooltip.hide();
         return;
       }
 
+      const menuOpen = this.actionMenu.getVisible();
+
       const cell = this.grid.screenToGrid(pointer.x, pointer.y);
       if (cell) {
         this.cursor.show(cell.x, cell.y);
+
+        if (menuOpen) {
+          this.tooltip.hide();
+          return;
+        }
 
         const tile = this.grid.getTile(cell.x, cell.y);
         const tileType = tile?.tileType ?? 'EMPTY';
@@ -74,6 +82,10 @@ export class GameScene extends Phaser.Scene {
         } else {
           this.tooltip.show(pointer.x, pointer.y, label, 'loading');
           this.actionCache.getActions(cell.x, cell.y).then((actions) => {
+            // Don't show tooltip if speech phase or menu opened while loading
+            const s = gameState.gameState;
+            if (s && s.currentRoundInfo.remainingActions === 0) return;
+            if (this.actionMenu.getVisible()) return;
             // Only update if still hovering the same cell
             const current = this.grid.screenToGrid(this.input.activePointer.x, this.input.activePointer.y);
             if (current && current.x === cell.x && current.y === cell.y) {

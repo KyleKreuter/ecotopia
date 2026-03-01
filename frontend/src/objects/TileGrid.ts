@@ -12,6 +12,7 @@ export class TileGrid {
   private container: Phaser.GameObjects.Container;
   private tiles: TileSprite[][] = [];
   private multiTileOverlays: Phaser.GameObjects.Image[] = [];
+  private indexLabels: Phaser.GameObjects.Text[] = [];
 
   /** Top-left screen position of the grid */
   originX = 0;
@@ -22,6 +23,7 @@ export class TileGrid {
     this.computeOrigin();
     this.container = scene.add.container(this.originX, this.originY);
     this.createGrid();
+    this.createIndexLabels();
 
     scene.scale.on('resize', () => {
       this.computeOrigin();
@@ -136,6 +138,34 @@ export class TileGrid {
         const specs = resolveOverlays(mask, this, x, y);
         tile.applyWaterOverlays(specs);
       }
+    }
+  }
+
+  private createIndexLabels(): void {
+    const style = { fontFamily: 'BitPotionExt', fontSize: `${Math.floor(TILE_SIZE * 0.45)}px`, color: '#666' };
+
+    // Column labels (A-J) along the bottom
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const label = this.scene.add.text(
+        x * TILE_SIZE + TILE_SIZE / 2,
+        GRID_SIZE * TILE_SIZE + 4,
+        String.fromCharCode(65 + x),
+        style,
+      ).setOrigin(0.5, 0);
+      this.container.add(label);
+      this.indexLabels.push(label);
+    }
+
+    // Row labels (1-10) along the left
+    for (let y = 0; y < GRID_SIZE; y++) {
+      const label = this.scene.add.text(
+        -4,
+        y * TILE_SIZE + TILE_SIZE / 2,
+        String(y + 1),
+        style,
+      ).setOrigin(1, 0.5);
+      this.container.add(label);
+      this.indexLabels.push(label);
     }
   }
 

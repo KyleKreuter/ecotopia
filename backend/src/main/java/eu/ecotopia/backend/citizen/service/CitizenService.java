@@ -102,38 +102,44 @@ public class CitizenService {
      */
     public void applySolidarityEffects(Game game, Citizen spawned) {
         String name = spawned.getName();
+        log.info("[SOLIDARITY] Applying effects for spawned citizen '{}'", name);
 
         switch (name) {
             case "Oleg", "Kerstin", "Henning" -> {
                 // Worker spawned
                 findCitizenByName(game, "Karl").ifPresent(karl -> {
-                    karl.setApproval(clampApproval(karl.getApproval() - 5));
-                    log.debug("Karl approval adjusted to {} (worker solidarity)", karl.getApproval());
+                    int old = karl.getApproval();
+                    karl.setApproval(clampApproval(old - 5));
+                    log.info("[SOLIDARITY] Karl: {} -> {} (worker solidarity, -5)", old, karl.getApproval());
                 });
                 findCitizenByName(game, "Sarah").ifPresent(sarah -> {
-                    sarah.setApproval(clampApproval(sarah.getApproval() + 3));
-                    log.debug("Sarah approval adjusted to {} (worker solidarity)", sarah.getApproval());
+                    int old = sarah.getApproval();
+                    sarah.setApproval(clampApproval(old + 3));
+                    log.info("[SOLIDARITY] Sarah: {} -> {} (worker solidarity, +3)", old, sarah.getApproval());
                 });
             }
             case "Bernd" -> {
                 // Environmental spawn
                 findCitizenByName(game, "Mia").ifPresent(mia -> {
-                    mia.setApproval(clampApproval(mia.getApproval() - 3));
-                    log.debug("Mia approval adjusted to {} (environmental solidarity)", mia.getApproval());
+                    int old = mia.getApproval();
+                    mia.setApproval(clampApproval(old - 3));
+                    log.info("[SOLIDARITY] Mia: {} -> {} (environmental solidarity, -3)", old, mia.getApproval());
                 });
             }
             case "Lena", "Dr. Yuki", "Pavel" -> {
                 // Positive spawn
                 findCitizenByName(game, "Mia").ifPresent(mia -> {
-                    mia.setApproval(clampApproval(mia.getApproval() + 3));
-                    log.debug("Mia approval adjusted to {} (positive solidarity)", mia.getApproval());
+                    int old = mia.getApproval();
+                    mia.setApproval(clampApproval(old + 3));
+                    log.info("[SOLIDARITY] Mia: {} -> {} (positive solidarity, +3)", old, mia.getApproval());
                 });
                 findCitizenByName(game, "Karl").ifPresent(karl -> {
-                    karl.setApproval(clampApproval(karl.getApproval() + 2));
-                    log.debug("Karl approval adjusted to {} (positive solidarity)", karl.getApproval());
+                    int old = karl.getApproval();
+                    karl.setApproval(clampApproval(old + 2));
+                    log.info("[SOLIDARITY] Karl: {} -> {} (positive solidarity, +2)", old, karl.getApproval());
                 });
             }
-            default -> log.debug("No solidarity effects for citizen '{}'", name);
+            default -> log.info("[SOLIDARITY] No solidarity effects for citizen '{}'", name);
         }
     }
 

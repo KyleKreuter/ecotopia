@@ -5,7 +5,6 @@ export class SpeechPanel {
   private el: HTMLElement;
   private textarea!: HTMLTextAreaElement;
   private submitBtn!: HTMLButtonElement;
-  private endRoundBtn!: HTMLButtonElement;
 
   constructor(parent: HTMLElement) {
     this.el = document.createElement('div');
@@ -16,7 +15,6 @@ export class SpeechPanel {
         <textarea placeholder="Address your citizens..."></textarea>
         <div class="speech-actions">
           <button class="pixel-btn speech-submit">Deliver Speech</button>
-          <button class="pixel-btn warning end-round" style="display:none">End Round</button>
         </div>
       </div>
     `;
@@ -24,10 +22,8 @@ export class SpeechPanel {
 
     this.textarea = this.el.querySelector('textarea')!;
     this.submitBtn = this.el.querySelector('.speech-submit')!;
-    this.endRoundBtn = this.el.querySelector('.end-round')!;
 
     this.submitBtn.addEventListener('click', () => this.handleSubmit());
-    this.endRoundBtn.addEventListener('click', () => this.handleEndRound());
   }
 
   private async handleSubmit(): Promise<void> {
@@ -48,34 +44,12 @@ export class SpeechPanel {
     }
   }
 
-  private async handleEndRound(): Promise<void> {
-    this.endRoundBtn.disabled = true;
-    this.endRoundBtn.textContent = 'Ending...';
-
-    try {
-      await gameState.endRound();
-      this.hide();
-    } catch (err) {
-      this.endRoundBtn.disabled = false;
-      this.endRoundBtn.textContent = 'End Round';
-      const msg = err instanceof Error ? err.message : 'End round failed';
-      eventBus.emit(GameEvents.ERROR, msg);
-    }
-  }
-
   show(): void {
     this.el.classList.add('visible');
     this.textarea.value = '';
     this.submitBtn.disabled = false;
     this.submitBtn.textContent = 'Deliver Speech';
-    this.endRoundBtn.style.display = 'none';
     requestAnimationFrame(() => this.textarea.focus());
-  }
-
-  showEndRound(): void {
-    this.endRoundBtn.style.display = 'inline-block';
-    this.endRoundBtn.disabled = false;
-    this.endRoundBtn.textContent = 'End Round';
   }
 
   hide(): void {

@@ -35,7 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GameService {
 
-    private static final int MAX_ROUNDS = 7;
+    private static final int MAX_ROUNDS = 15;
 
     private final GameRepository gameRepository;
     private final GameInitializer gameInitializer;
@@ -91,9 +91,15 @@ public class GameService {
         // Save the previous tile type before the action changes it
         TileType previousTileType = tile.getTileType();
 
+        log.info("=== EXECUTE ACTION === game={} round={} action={} tile=({},{}) type={} -> ?",
+                gameId, game.getCurrentRound(), action, x, y, previousTileType);
+
         tileActionService.executeAction(game, tile, action);
+        log.info("[ACTION] Tile ({},{}) changed: {} -> {}", x, y, previousTileType, tile.getTileType());
+
         citizenService.spawnCitizens(game, previousTileType, action);
 
+        logGameSnapshot("AFTER_ACTION", game);
         return gameRepository.save(game);
     }
 
@@ -114,16 +120,21 @@ public class GameService {
             throw new IllegalStateException("Cannot advance round: game is not running (status=" + game.getStatus() + ")");
         }
 
+        log.info("=== ADVANCE ROUND START === game={} round={}", game.getId(), game.getCurrentRound());
+        logGameSnapshot("BEFORE_ADVANCE", game);
+
         // Apply end-of-round effects
         pollutionService.applyPollutionTick(game);
         citizenService.tickCitizenLifecycle(game);
 
         // Recalculate resources based on the current grid state
         recalculateResources(game);
+        logGameSnapshot("AFTER_RECALCULATE", game);
 
         // Check game-over conditions
         if (checkGameOver(game)) {
-            log.info("Game id={} lost: {}", game.getId(), game.getDefeatReason());
+            log.info("=== GAME OVER === game={} reason={}", game.getId(), game.getDefeatReason());
+            logGameSnapshot("GAME_OVER", game);
             return gameRepository.save(game);
         }
 
@@ -164,18 +175,21 @@ public class GameService {
     private void recalculateResources(Game game) {
         int ecology = 0;
         int economy = 0;
-        int research = 0;
+        int researchDelta = 0;
 
         for (Tile tile : game.getTiles()) {
             ecology += getEcologyContribution(tile.getTileType());
             economy += getEconomyContribution(tile.getTileType());
-            research += getResearchContribution(tile.getTileType());
+            researchDelta += getResearchContribution(tile.getTileType());
         }
 
         GameResources resources = game.getResources();
         resources.setEcology(clamp(ecology));
         resources.setEconomy(clamp(economy));
-        resources.setResearch(clamp(research));
+        // Research is cumulative: each Research Center adds +5 per round
+        int newResearch = resources.getResearch() + researchDelta;
+        resources.setResearch(clamp(newResearch));
+        log.info("[RECALCULATE] research: {} + {} = {}", resources.getResearch() - researchDelta, researchDelta, newResearch);
     }
 
     /**
@@ -241,30 +255,49 @@ public class GameService {
     private boolean checkGameOver(Game game) {
         GameResources resources = game.getResources();
 
+        log.info("[GAME_OVER_CHECK] game={} ecology={} economy={} research={}",
+                game.getId(), resources.getEcology(), resources.getEconomy(), resources.getResearch());
+
         if (resources.getEcology() < 20) {
+            log.info("[GAME_OVER_CHECK] ECOLOGICAL_COLLAPSE triggered: ecology={} < 20", resources.getEcology());
             game.setStatus(GameStatus.LOST);
             game.setDefeatReason(DefeatReason.ECOLOGICAL_COLLAPSE);
             return true;
         }
 
         if (resources.getEconomy() < 20) {
+            log.info("[GAME_OVER_CHECK] ECONOMIC_COLLAPSE triggered: economy={} < 20", resources.getEconomy());
             game.setStatus(GameStatus.LOST);
             game.setDefeatReason(DefeatReason.ECONOMIC_COLLAPSE);
             return true;
         }
 
-        // Check if ALL core citizens have approval < 25
+        // Check if ALL core citizens have approval < 30
         List<Citizen> coreCitizens = game.getCitizens().stream()
                 .filter(c -> c.getCitizenType() == CitizenType.CORE)
                 .toList();
 
-        if (!coreCitizens.isEmpty() && coreCitizens.stream().allMatch(c -> c.getApproval() < 25)) {
+        for (Citizen c : coreCitizens) {
+            log.info("[GAME_OVER_CHECK] CORE citizen '{}' approval={} (threshold < 30)", c.getName(), c.getApproval());
+        }
+
+        if (!coreCitizens.isEmpty() && coreCitizens.stream().allMatch(c -> c.getApproval() < 30)) {
+            log.info("[GAME_OVER_CHECK] VOTED_OUT triggered: ALL core citizens below 30");
             game.setStatus(GameStatus.LOST);
             game.setDefeatReason(DefeatReason.VOTED_OUT);
             return true;
         }
 
+        log.info("[GAME_OVER_CHECK] No game-over condition met");
         return false;
+    }
+
+    private void logGameSnapshot(String phase, Game game) {
+        GameResources r = game.getResources();
+        log.info("[{}] Resources: ecology={} economy={} research={}", phase, r.getEcology(), r.getEconomy(), r.getResearch());
+        for (Citizen c : game.getCitizens()) {
+            log.info("[{}] Citizen '{}' ({}): approval={} type={}", phase, c.getName(), c.getProfession(), c.getApproval(), c.getCitizenType());
+        }
     }
 
     /**
