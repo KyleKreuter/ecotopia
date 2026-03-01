@@ -6,6 +6,8 @@ import { SpeechPanel } from './SpeechPanel.ts';
 import { PromisePanel } from './PromisePanel.ts';
 import { ContradictionAlert } from './ContradictionAlert.ts';
 import { ReactionPanel } from './ReactionPanel.ts';
+import { TutorialOverlay } from './TutorialOverlay.ts';
+import { gameState } from '../state/GameStateManager.ts';
 
 export class UIManager {
   private overlay: HTMLElement;
@@ -15,18 +17,34 @@ export class UIManager {
   private promisePanel: PromisePanel;
   private contradictionAlert: ContradictionAlert;
   private reactionPanel: ReactionPanel;
+  private tutorial: TutorialOverlay | null = null;
 
   constructor() {
     this.overlay = document.getElementById('ui-overlay')!;
 
-    this.resourcePanel = new ResourcePanel(this.overlay);
-    this.citizenPanel = new CitizenPanel(this.overlay);
+    // Create sidebar containers
+    const leftSidebar = document.createElement('div');
+    leftSidebar.className = 'left-sidebar';
+    this.overlay.appendChild(leftSidebar);
+
+    const rightSidebar = document.createElement('div');
+    rightSidebar.className = 'right-sidebar';
+    this.overlay.appendChild(rightSidebar);
+
+    this.resourcePanel = new ResourcePanel(leftSidebar);
+    this.promisePanel = new PromisePanel(leftSidebar);
+    this.citizenPanel = new CitizenPanel(rightSidebar);
     this.speechPanel = new SpeechPanel(this.overlay);
-    this.promisePanel = new PromisePanel(this.overlay);
     this.contradictionAlert = new ContradictionAlert(this.overlay);
     this.reactionPanel = new ReactionPanel(this.overlay);
 
     this.setupEventListeners();
+
+    if (!gameState.gameState || gameState.gameState.currentRound === 1) {
+      this.tutorial = new TutorialOverlay(this.overlay, () => {
+        this.tutorial = null;
+      });
+    }
   }
 
   private setupEventListeners(): void {
@@ -42,13 +60,22 @@ export class UIManager {
 
     eventBus.on(GameEvents.SPEECH_RESPONSE, (response: unknown) => {
       const r = response as SpeechResponse;
+      // Hide speech modal so reactions are visible
+      this.speechPanel.hide();
       if (r.contradictions.length > 0) {
         this.contradictionAlert.show(r.contradictions);
       }
       if (r.citizenReactions.length > 0) {
         this.reactionPanel.show(r.citizenReactions);
       }
-      this.speechPanel.showEndRound();
+      // Show end round button in the reaction panel area instead
+      this.reactionPanel.showEndRound(() => {
+        this.reactionPanel.hide();
+        gameState.endRound().catch(err => {
+          const msg = err instanceof Error ? err.message : 'End round failed';
+          eventBus.emit(GameEvents.ERROR, msg);
+        });
+      });
     });
   }
 

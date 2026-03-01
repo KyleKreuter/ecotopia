@@ -50,6 +50,10 @@ class GameStateManager {
   async submitSpeech(text: string): Promise<void> {
     if (!this.state) return;
     this._speechResponse = await api.submitSpeech(this.state.id, text);
+
+    // Refresh game state to get updated citizen approvals after AI reactions
+    this.state = await api.getGame(this.state.id);
+    eventBus.emit(GameEvents.STATE_CHANGED, this.state);
     eventBus.emit(GameEvents.SPEECH_RESPONSE, this._speechResponse);
   }
 

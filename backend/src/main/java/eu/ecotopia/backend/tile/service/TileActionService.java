@@ -7,6 +7,7 @@ import eu.ecotopia.backend.round.model.GameRound;
 import eu.ecotopia.backend.tile.model.Tile;
 import eu.ecotopia.backend.tile.model.TileActionType;
 import eu.ecotopia.backend.tile.model.TileType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
  * and decrementing the action counter for the current round.
  */
 @Service
+@Slf4j
 public class TileActionService {
 
     /**
@@ -110,8 +112,18 @@ public class TileActionService {
                     "Action " + action + " is not available for tile type " + tile.getTileType());
         }
 
+        int ecoBefore = game.getResources().getEcology(), econBefore = game.getResources().getEconomy(), resBefore = game.getResources().getResearch();
+        TileType typeBefore = tile.getTileType();
+
         applyAction(game, tile, action);
         currentRound.setRemainingActions(currentRound.getRemainingActions() - 1);
+
+        log.info("[GAME-{}] tile action: {} on ({},{}) {} → {} — resources delta [eco {}, econ {}, res {}] — remainingActions={}",
+                game.getId(), action, tile.getX(), tile.getY(), typeBefore, tile.getTileType(),
+                game.getResources().getEcology() - ecoBefore,
+                game.getResources().getEconomy() - econBefore,
+                game.getResources().getResearch() - resBefore,
+                currentRound.getRemainingActions());
     }
 
     /**

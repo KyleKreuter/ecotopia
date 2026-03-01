@@ -1,9 +1,13 @@
 export let TILE_SIZE = 48;
 export const GRID_SIZE = 10;
 
-/** Compute tile size so the grid fills ~90% of the viewport */
+/** Compute tile size so the grid fills the center area between sidebars. */
 export function initTileSize(viewportW: number, viewportH: number): void {
-  TILE_SIZE = Math.floor(Math.min(viewportW, viewportH) * 0.9 / GRID_SIZE);
+  const sidebarLeft = 200;
+  const sidebarRight = 240;
+  const availW = viewportW - sidebarLeft - sidebarRight - 16;
+  const availH = viewportH - 16;
+  TILE_SIZE = Math.max(40, Math.floor(Math.min(availW, availH) / GRID_SIZE));
 }
 
 export const COLORS = {
