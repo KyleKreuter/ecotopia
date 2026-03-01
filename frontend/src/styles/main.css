@@ -1302,3 +1302,111 @@ html, body {
     padding: 16px 20px !important;
   }
 }
+
+/* SPEECH PANEL OVERHAUL */
+.speech-panel {
+  z-index: 100 !important;
+}
+
+.speech-modal {
+  width: min(680px, 92vw) !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+  border: 2px solid #3498db !important;
+  border-radius: 12px !important;
+  padding: 28px 36px !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 0 30px rgba(52, 152, 219, 0.15) !important;
+}
+
+.speech-modal h3 {
+  font-size: 1.8rem !important;
+  color: #fff !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  letter-spacing: 2px !important;
+}
+
+.speech-context {
+  font-size: 1rem !important;
+  color: #bbb !important;
+  padding: 12px 14px !important;
+  border: 1px solid #2a3a5e !important;
+  border-radius: 8px !important;
+  background: rgba(10, 14, 26, 0.6) !important;
+  line-height: 1.8 !important;
+  margin-bottom: 16px !important;
+}
+
+.speech-modal textarea {
+  font-size: 1.3rem !important;
+  height: 130px !important;
+  background: #0d1117 !important;
+  border: 2px solid #2a3a5e !important;
+  border-radius: 8px !important;
+  color: #e0e0e0 !important;
+  padding: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.speech-modal textarea:focus {
+  border-color: #3498db !important;
+  box-shadow: 0 0 12px rgba(52, 152, 219, 0.2) !important;
+}
+
+.speech-modal textarea::placeholder {
+  color: #556 !important;
+  font-style: italic !important;
+}
+
+.speech-charcount {
+  font-size: 0.85rem !important;
+  color: #556 !important;
+  margin-top: 6px !important;
+}
+
+.speech-modal .speech-actions {
+  margin-top: 20px !important;
+  gap: 16px !important;
+}
+
+.speech-modal .speech-submit {
+  font-size: 1.4rem !important;
+  padding: 16px 48px !important;
+  background: linear-gradient(135deg, #0f3460, #16213e) !important;
+  border: 2px solid #3498db !important;
+  border-radius: 8px !important;
+  color: #fff !important;
+  letter-spacing: 2px !important;
+  transition: all 0.3s ease !important;
+}
+
+.speech-modal .speech-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  box-shadow: 0 4px 20px rgba(52, 152, 219, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.speech-modal .speech-submit:disabled {
+  opacity: 0.5 !important;
+  cursor: wait !important;
+}
+
+.speech-modal .end-round {
+  font-size: 1.2rem !important;
+  padding: 14px 36px !important;
+  background: linear-gradient(135deg, #2c1810, #1a1a2e) !important;
+  border: 2px solid #f39c12 !important;
+  border-radius: 8px !important;
+  color: #f39c12 !important;
+}
+
+.speech-modal .end-round:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+  color: #fff !important;
+}
+
+/* Action menu z-index fix */
+.action-menu {
+  z-index: 30 !important;
+}
