@@ -56,7 +56,7 @@ class CitizenReactionServiceTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        citizenReactionService = new CitizenReactionService(chatClientBuilder, objectMapper);
+        citizenReactionService = new CitizenReactionService(chatClientBuilder, new eu.ecotopia.backend.speech.client.HuggingFaceClient(objectMapper), objectMapper);
     }
 
     @Test
