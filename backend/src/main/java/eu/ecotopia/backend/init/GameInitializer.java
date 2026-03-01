@@ -10,25 +10,18 @@ import eu.ecotopia.backend.tile.model.Tile;
 import eu.ecotopia.backend.tile.model.TileType;
 import org.springframework.stereotype.Component;
 
-import static eu.ecotopia.backend.tile.model.TileType.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class GameInitializer {
 
-    private static final TileType[][] START_MAP = {
-        {HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, CLEAN_RIVER, CLEAN_RIVER, FACTORY, FACTORY, OIL_REFINERY},
-        {HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, CLEAN_RIVER, CLEAN_RIVER, FACTORY, COAL_PLANT, WASTELAND},
-        {HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, WASTELAND, WASTELAND, WASTELAND},
-        {HEALTHY_FOREST, HEALTHY_FOREST, HEALTHY_FOREST, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, WASTELAND, WASTELAND, RESIDENTIAL, RESIDENTIAL},
-        {CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, FARMLAND, FARMLAND, RESIDENTIAL, RESIDENTIAL},
-        {CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, CLEAN_RIVER, FARMLAND, FARMLAND, FARMLAND, CITY_CENTER, RESIDENTIAL},
-        {WASTELAND, FARMLAND, FARMLAND, FARMLAND, FARMLAND, FARMLAND, FARMLAND, RESIDENTIAL, RESIDENTIAL, RESIDENTIAL},
-        {WASTELAND, FARMLAND, FARMLAND, FARMLAND, FARMLAND, FARMLAND, RESIDENTIAL, RESIDENTIAL, CITY_CENTER, WASTELAND},
-        {WASTELAND, WASTELAND, FARMLAND, FARMLAND, FARMLAND, WASTELAND, RESIDENTIAL, WASTELAND, WASTELAND, WASTELAND},
-        {WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND, WASTELAND},
-    };
+    private static final String START_MAP = "maps/start.map";
 
     public Game createNewGame() {
+        TileType[][] map = loadMap(START_MAP);
+
         Game game = Game.builder()
                 .currentRound(1)
                 .status(GameStatus.RUNNING)
@@ -39,12 +32,12 @@ public class GameInitializer {
                         .build())
                 .build();
 
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++) {
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
                 game.addTile(Tile.builder()
                         .x(x)
                         .y(y)
-                        .tileType(START_MAP[y][x])
+                        .tileType(map[y][x])
                         .build());
             }
         }
@@ -82,5 +75,38 @@ public class GameInitializer {
                 .build());
 
         return game;
+    }
+
+    private TileType[][] loadMap(String resourcePath) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IllegalStateException("Map not found: " + resourcePath);
+            }
+
+            String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            String[] lines = content.lines()
+                    .filter(line -> !line.isBlank() && !line.startsWith("#"))
+                    .toArray(String[]::new);
+
+            TileType[] types = TileType.values();
+            TileType[][] map = new TileType[lines.length][];
+
+            for (int y = 0; y < lines.length; y++) {
+                String line = lines[y].trim();
+                map[y] = new TileType[line.length()];
+                for (int x = 0; x < line.length(); x++) {
+                    int index = Character.digit(line.charAt(x), 16);
+                    if (index < 0 || index >= types.length) {
+                        throw new IllegalStateException(
+                                "Invalid tile '%c' at (%d,%d) in %s".formatted(line.charAt(x), x, y, resourcePath));
+                    }
+                    map[y][x] = types[index];
+                }
+            }
+
+            return map;
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load map: " + resourcePath, e);
+        }
     }
 }
