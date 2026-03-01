@@ -142,7 +142,7 @@ async function buildGameState(id: number): Promise<GameStateResponse> {
   return {
     id,
     currentRound: 1,
-    status: 'IN_PROGRESS',
+    status: 'RUNNING',
     resultRank: null,
     defeatReason: null,
     resources: { ecology: 40, economy: 70, research: 5 },
@@ -692,11 +692,11 @@ export const mockApi = {
     // Game over check
     const { defeated, reason } = checkGameOver(g);
     if (defeated) {
-      g.status = 'FINISHED';
+      g.status = 'WON';
       g.defeatReason = reason;
       g.resultRank = 'BRONZE';
     } else if (g.currentRound > 7) {
-      g.status = 'FINISHED';
+      g.status = 'WON';
       g.resultRank = computeRank(g);
     } else {
       g.currentRoundInfo = {

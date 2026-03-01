@@ -412,3 +412,71 @@ body {
 .tile-tooltip.loading .edit-icon {
   color: #666;
 }
+
+/* Reaction Panel - After Speech */
+.reaction-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+  background: rgba(255, 251, 241, 0.98);
+  border-top: 2px solid #000;
+  padding: 16px 24px;
+  z-index: 60;
+  display: none;
+  animation: slideUp 0.3s ease;
+}
+
+.reaction-panel.visible {
+  display: block;
+}
+
+.reaction-panel h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.reaction-entry {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-left: 3px solid #000;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.reaction-entry.reaction-angry { border-color: #a00; }
+.reaction-entry.reaction-suspicious { border-color: #a60; }
+.reaction-entry.reaction-hopeful { border-color: #0a0; }
+.reaction-entry.reaction-sarcastic { border-color: #60a; }
+
+.reaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.reaction-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.reaction-delta {
+  font-size: 16px;
+}
+
+.reaction-delta.positive { color: #0a0; }
+.reaction-delta.negative { color: #a00; }
+
+.reaction-dialogue {
+  font-size: 14px;
+  font-style: italic;
+  color: #333;
+  line-height: 1.4;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
