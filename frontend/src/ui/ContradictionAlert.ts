@@ -1,5 +1,6 @@
 import type { ContradictionResponse } from '../types/backend.ts';
 
+/** Eye-catching alert banner for detected contradictions. */
 export class ContradictionAlert {
   private parent: HTMLElement;
 
@@ -12,18 +13,20 @@ export class ContradictionAlert {
       const alert = document.createElement('div');
       alert.className = 'contradiction-alert';
       alert.innerHTML = `
-        <strong>Contradiction Detected</strong><br/>
-        <span style="margin-top:4px;display:block">${c.description}</span>
-        <span style="font-size:7px;color:#666;display:block;margin-top:4px">
-          "${c.speechQuote}" vs ${c.contradictingAction}
-        </span>
+        <div class="contradiction-icon">⚠</div>
+        <div class="contradiction-content">
+          <strong class="contradiction-title">Contradiction Detected</strong>
+          <span class="contradiction-desc">${c.description}</span>
+          <span class="contradiction-quote">
+            "${c.speechQuote}" vs ${c.contradictingAction}
+          </span>
+        </div>
       `;
       this.parent.appendChild(alert);
 
       setTimeout(() => {
-        alert.style.opacity = '0';
-        alert.style.transition = 'opacity 0.3s';
-        setTimeout(() => alert.remove(), 300);
+        alert.classList.add('fade-out');
+        setTimeout(() => alert.remove(), 600);
       }, 5000);
     }
   }

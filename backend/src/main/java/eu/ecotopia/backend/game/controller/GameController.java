@@ -6,6 +6,7 @@ import eu.ecotopia.backend.game.model.Game;
 import eu.ecotopia.backend.game.repository.GameRepository;
 import eu.ecotopia.backend.game.service.GameService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/games")
+@Slf4j
 @RequiredArgsConstructor
 public class GameController {
 
@@ -34,7 +36,12 @@ public class GameController {
      */
     @PostMapping
     public ResponseEntity<GameStateResponse> createGame() {
+        long start = System.currentTimeMillis();
+        log.info("POST /api/games — creating new game");
         Game game = gameService.createNewGame();
+        log.info("[GAME-{}] created in {}ms — round={}, resources=[eco={}, econ={}, res={}]",
+                game.getId(), System.currentTimeMillis() - start, game.getCurrentRound(),
+                game.getResources().getEcology(), game.getResources().getEconomy(), game.getResources().getResearch());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GameMapper.toGameStateResponse(game));
     }
@@ -47,7 +54,12 @@ public class GameController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<GameStateResponse> getGame(@PathVariable Long id) {
+        long start = System.currentTimeMillis();
+        log.info("GET /api/games/{}", id);
         Game game = gameService.getGame(id);
+        log.info("[GAME-{}] fetched in {}ms — round={}, status={}, resources=[eco={}, econ={}, res={}]",
+                id, System.currentTimeMillis() - start, game.getCurrentRound(), game.getStatus(),
+                game.getResources().getEcology(), game.getResources().getEconomy(), game.getResources().getResearch());
         return ResponseEntity.ok(GameMapper.toGameStateResponse(game));
     }
 
@@ -59,7 +71,9 @@ public class GameController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
+        log.info("DELETE /api/games/{}", id);
         gameRepository.deleteById(id);
+        log.info("[GAME-{}] deleted", id);
         return ResponseEntity.noContent().build();
     }
 }

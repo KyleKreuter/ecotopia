@@ -91,8 +91,18 @@ public class GameService {
         // Save the previous tile type before the action changes it
         TileType previousTileType = tile.getTileType();
 
+        GameResources resBefore = game.getResources();
+        int ecoBefore = resBefore.getEcology(), econBefore = resBefore.getEconomy(), resBef = resBefore.getResearch();
+        log.info("[GAME-{}] executeAction: action={} at ({},{}) tile={} — resources BEFORE [eco={}, econ={}, res={}]",
+                gameId, action, x, y, previousTileType, ecoBefore, econBefore, resBef);
+
         tileActionService.executeAction(game, tile, action);
         citizenService.spawnCitizens(game, previousTileType, action);
+
+        log.info("[GAME-{}] executeAction complete: tile now={} — resources AFTER [eco={}, econ={}, res={}] — citizens={}",
+                gameId, tile.getTileType(),
+                resBefore.getEcology(), resBefore.getEconomy(), resBefore.getResearch(),
+                game.getCitizens().stream().map(c -> c.getName() + "(" + c.getApproval() + ")").toList());
 
         return gameRepository.save(game);
     }
@@ -114,12 +124,19 @@ public class GameService {
             throw new IllegalStateException("Cannot advance round: game is not running (status=" + game.getStatus() + ")");
         }
 
+        log.info("[GAME-{}] advanceRound: starting from round {} — resources [eco={}, econ={}, res={}]",
+                gameId, game.getCurrentRound(),
+                game.getResources().getEcology(), game.getResources().getEconomy(), game.getResources().getResearch());
+
         // Apply end-of-round effects
         pollutionService.applyPollutionTick(game);
         citizenService.tickCitizenLifecycle(game);
 
         // Recalculate resources based on the current grid state
+        int ecoOld = game.getResources().getEcology(), econOld = game.getResources().getEconomy(), resOld = game.getResources().getResearch();
         recalculateResources(game);
+        log.info("[GAME-{}] resources recalculated: eco {}→{}, econ {}→{}, res {}→{}",
+                gameId, ecoOld, game.getResources().getEcology(), econOld, game.getResources().getEconomy(), resOld, game.getResources().getResearch());
 
         // Check game-over conditions
         if (checkGameOver(game)) {

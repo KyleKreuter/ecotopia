@@ -42,28 +42,30 @@ public class CitizenService {
             // First, spawn the destruction citizen based on the old tile type
             buildDestructionCitizen(previousTileType).ifPresent(citizen -> {
                 if (citizenAlreadyExists(game, citizen.getName())) {
-                    log.info("Skipping destruction citizen '{}' spawn: already exists", citizen.getName());
+                    log.info("[GAME-{}] skip spawn '{}': already exists", game.getId(), citizen.getName());
                 } else if (canAddDynamicCitizen(game)) {
                     game.addCitizen(citizen);
                     spawned.add(citizen);
                     applySolidarityEffects(game, citizen);
-                    log.info("Spawned destruction citizen '{}' for REPLACE_WITH_SOLAR on {}", citizen.getName(), previousTileType);
+                    log.info("[GAME-{}] spawned '{}' (approval={}, rounds={}) for REPLACE_WITH_SOLAR on {}",
+                            game.getId(), citizen.getName(), citizen.getApproval(), citizen.getRemainingRounds(), previousTileType);
                 } else {
-                    log.info("Skipping destruction citizen '{}' spawn: max citizens reached", citizen.getName());
+                    log.info("[GAME-{}] skip spawn '{}': max citizens ({}) reached", game.getId(), citizen.getName(), MAX_CITIZENS);
                 }
             });
 
             // Then, spawn Lena (solar technician)
             Citizen lena = buildLena();
             if (citizenAlreadyExists(game, lena.getName())) {
-                log.info("Skipping Lena spawn: already exists");
+                log.info("[GAME-{}] skip spawn Lena: already exists", game.getId());
             } else if (canAddDynamicCitizen(game)) {
                 game.addCitizen(lena);
                 spawned.add(lena);
                 applySolidarityEffects(game, lena);
-                log.info("Spawned Lena for REPLACE_WITH_SOLAR");
+                log.info("[GAME-{}] spawned Lena (approval={}, rounds={}) for REPLACE_WITH_SOLAR",
+                        game.getId(), lena.getApproval(), lena.getRemainingRounds());
             } else {
-                log.info("Skipping Lena spawn: max citizens reached");
+                log.info("[GAME-{}] skip spawn Lena: max citizens ({}) reached", game.getId(), MAX_CITIZENS);
             }
 
             return spawned;
@@ -73,14 +75,15 @@ public class CitizenService {
         Optional<Citizen> citizen = buildCitizenForAction(previousTileType, action);
         citizen.ifPresent(c -> {
             if (citizenAlreadyExists(game, c.getName())) {
-                log.info("Skipping citizen '{}' spawn: already exists", c.getName());
+                log.info("[GAME-{}] skip spawn '{}': already exists", game.getId(), c.getName());
             } else if (canAddDynamicCitizen(game)) {
                 game.addCitizen(c);
                 spawned.add(c);
                 applySolidarityEffects(game, c);
-                log.info("Spawned citizen '{}' for action {} on {}", c.getName(), action, previousTileType);
+                log.info("[GAME-{}] spawned '{}' (approval={}, rounds={}) for {} on {}",
+                        game.getId(), c.getName(), c.getApproval(), c.getRemainingRounds(), action, previousTileType);
             } else {
-                log.info("Skipping citizen '{}' spawn: max citizens reached", c.getName());
+                log.info("[GAME-{}] skip spawn '{}': max citizens ({}) reached", game.getId(), c.getName(), MAX_CITIZENS);
             }
         });
 
@@ -107,33 +110,38 @@ public class CitizenService {
             case "Oleg", "Kerstin", "Henning" -> {
                 // Worker spawned
                 findCitizenByName(game, "Karl").ifPresent(karl -> {
-                    karl.setApproval(clampApproval(karl.getApproval() - 5));
-                    log.debug("Karl approval adjusted to {} (worker solidarity)", karl.getApproval());
+                    int before = karl.getApproval();
+                    karl.setApproval(clampApproval(before - 5));
+                    log.info("[GAME-{}] solidarity: Karl approval {}→{} (worker spawn: {})", game.getId(), before, karl.getApproval(), name);
                 });
                 findCitizenByName(game, "Sarah").ifPresent(sarah -> {
-                    sarah.setApproval(clampApproval(sarah.getApproval() + 3));
-                    log.debug("Sarah approval adjusted to {} (worker solidarity)", sarah.getApproval());
+                    int before = sarah.getApproval();
+                    sarah.setApproval(clampApproval(before + 3));
+                    log.info("[GAME-{}] solidarity: Sarah approval {}→{} (worker spawn: {})", game.getId(), before, sarah.getApproval(), name);
                 });
             }
             case "Bernd" -> {
                 // Environmental spawn
                 findCitizenByName(game, "Mia").ifPresent(mia -> {
-                    mia.setApproval(clampApproval(mia.getApproval() - 3));
-                    log.debug("Mia approval adjusted to {} (environmental solidarity)", mia.getApproval());
+                    int before = mia.getApproval();
+                    mia.setApproval(clampApproval(before - 3));
+                    log.info("[GAME-{}] solidarity: Mia approval {}→{} (environmental spawn: Bernd)", game.getId(), before, mia.getApproval());
                 });
             }
             case "Lena", "Dr. Yuki", "Pavel" -> {
                 // Positive spawn
                 findCitizenByName(game, "Mia").ifPresent(mia -> {
-                    mia.setApproval(clampApproval(mia.getApproval() + 3));
-                    log.debug("Mia approval adjusted to {} (positive solidarity)", mia.getApproval());
+                    int before = mia.getApproval();
+                    mia.setApproval(clampApproval(before + 3));
+                    log.info("[GAME-{}] solidarity: Mia approval {}→{} (positive spawn: {})", game.getId(), before, mia.getApproval(), name);
                 });
                 findCitizenByName(game, "Karl").ifPresent(karl -> {
-                    karl.setApproval(clampApproval(karl.getApproval() + 2));
-                    log.debug("Karl approval adjusted to {} (positive solidarity)", karl.getApproval());
+                    int before = karl.getApproval();
+                    karl.setApproval(clampApproval(before + 2));
+                    log.info("[GAME-{}] solidarity: Karl approval {}→{} (positive spawn: {})", game.getId(), before, karl.getApproval(), name);
                 });
             }
-            default -> log.debug("No solidarity effects for citizen '{}'", name);
+            default -> log.info("[GAME-{}] no solidarity effects for citizen '{}'", game.getId(), name);
         }
     }
 
@@ -151,11 +159,16 @@ public class CitizenService {
             }
 
             if (citizen.getRemainingRounds() != null) {
-                citizen.setRemainingRounds(citizen.getRemainingRounds() - 1);
+                int before = citizen.getRemainingRounds();
+                citizen.setRemainingRounds(before - 1);
 
                 if (citizen.getRemainingRounds() <= 0) {
                     toRemove.add(citizen);
-                    log.info("Dynamic citizen '{}' expired (remainingRounds reached 0)", citizen.getName());
+                    log.info("[GAME-{}] citizen '{}' expired — removing (approval was {})",
+                            game.getId(), citizen.getName(), citizen.getApproval());
+                } else {
+                    log.info("[GAME-{}] citizen '{}' lifecycle tick: remainingRounds {}→{}",
+                            game.getId(), citizen.getName(), before, citizen.getRemainingRounds());
                 }
             }
         }

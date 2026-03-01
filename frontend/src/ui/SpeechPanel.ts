@@ -1,6 +1,7 @@
 import { gameState } from '../state/GameStateManager.ts';
 import { eventBus, GameEvents } from '../state/EventBus.ts';
 
+/** Speech panel where the player addresses their citizens. */
 export class SpeechPanel {
   private static readonly MAX_CHARS = 500;
 
@@ -10,6 +11,12 @@ export class SpeechPanel {
   private endRoundBtn!: HTMLButtonElement;
   private contextHint!: HTMLDivElement;
   private charCount!: HTMLDivElement;
+
+  /** Extract base name for avatar (handles "Dr. Yuki" -> "yuki"). */
+  private avatarKey(name: string): string {
+    const parts = name.toLowerCase().split(/[\s.]+/).filter(Boolean);
+    return parts[parts.length - 1];
+  }
 
   constructor(parent: HTMLElement) {
     this.el = document.createElement('div');
@@ -44,15 +51,19 @@ export class SpeechPanel {
     if (!text) return;
 
     this.submitBtn.disabled = true;
-    this.submitBtn.innerHTML = '<span class="loading-spinner"></span> Speaking';
+    this.submitBtn.textContent = 'Analyzing speech...';
+    this.submitBtn.classList.add('loading');
 
     try {
       await gameState.submitSpeech(text);
-      this.submitBtn.textContent = 'Speech Delivered!';
+      this.submitBtn.textContent = 'Speech Delivered';
+      this.submitBtn.classList.remove('loading');
+      this.submitBtn.classList.add('success');
     } catch (err) {
-      this.submitBtn.textContent = 'Error - Retry';
-      this.submitBtn.disabled = false;
       const msg = err instanceof Error ? err.message : 'Speech failed';
+      this.submitBtn.textContent = 'Retry';
+      this.submitBtn.disabled = false;
+      this.submitBtn.classList.remove('loading');
       eventBus.emit(GameEvents.ERROR, msg);
     }
   }
@@ -86,17 +97,38 @@ export class SpeechPanel {
 
     const { resources, citizens, promises, currentRound } = state;
     const activePromises = promises.filter(p => p.status === 'active').length;
-    const citizenLines = citizens
-      .map(c => `${c.name} (${c.profession}) — ${c.approval}% approval`)
-      .join('<br>');
+
+    const resourceBars = [
+      { label: 'ECO', value: resources.ecology, cls: 'eco' },
+      { label: 'ECON', value: resources.economy, cls: 'econ' },
+      { label: 'RES', value: resources.research, cls: 'res' },
+    ].map(r => `
+      <div class="ctx-resource">
+        <span class="ctx-resource-label">${r.label}</span>
+        <div class="ctx-bar-track"><div class="ctx-bar-fill ctx-${r.cls}" style="width:${r.value}%"></div></div>
+        <span class="ctx-resource-val">${r.value}</span>
+      </div>
+    `).join('');
+
+    const citizenCards = citizens.map(c => {
+      const key = this.avatarKey(c.name);
+      const approvalColor = c.approval >= 60 ? '#2ecc71' : c.approval >= 35 ? '#f39c12' : '#e74c3c';
+      return `
+        <div class="ctx-citizen">
+          <img class="ctx-citizen-avatar" src="/assets/character/${key}.png" alt="${c.name}" width="24" height="24" onerror="this.style.display='none'">
+          <span class="ctx-citizen-name">${c.name}</span>
+          <span class="ctx-citizen-approval" style="color:${approvalColor}">${c.approval}%</span>
+        </div>
+      `;
+    }).join('');
 
     this.contextHint.style.display = 'block';
-    this.contextHint.innerHTML = [
-      `<strong>Round ${currentRound}</strong>`,
-      `Ecology ${resources.ecology}% / Economy ${resources.economy}% / Research ${resources.research}%`,
-      citizenLines,
-      `${activePromises} active promise${activePromises !== 1 ? 's' : ''}`,
-    ].join('<br>');
+    this.contextHint.innerHTML = `
+      <div class="ctx-header">Round ${currentRound} / 7</div>
+      <div class="ctx-resources">${resourceBars}</div>
+      <div class="ctx-citizens">${citizenCards}</div>
+      ${activePromises > 0 ? `<div class="ctx-promises">${activePromises} active promise${activePromises !== 1 ? 's' : ''}</div>` : ''}
+    `;
   }
 
   show(): void {
@@ -104,6 +136,7 @@ export class SpeechPanel {
     this.textarea.value = '';
     this.submitBtn.disabled = false;
     this.submitBtn.textContent = 'Deliver Speech';
+    this.submitBtn.classList.remove('success', 'loading');
     this.endRoundBtn.style.display = 'none';
     this.updateCharCount();
     this.populateContext();
