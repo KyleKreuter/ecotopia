@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ public class HuggingFaceClient {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setBearerAuth(token);
 
         Map<String, Object> body = Map.of(
@@ -62,9 +64,31 @@ public class HuggingFaceClient {
 
         log.debug("Calling HF endpoint: {} (max_tokens={}, temp={})", endpointUrl, maxTokens, temperature);
 
-        String rawResponse = restTemplate.postForObject(endpointUrl, request, String.class);
+        // Retry logic for scale-to-zero cold starts (503 errors)
+        int maxRetries = 3;
+        long retryDelayMs = 30_000;
 
-        return extractGeneratedText(rawResponse);
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                String rawResponse = restTemplate.postForObject(endpointUrl, request, String.class);
+                return extractGeneratedText(rawResponse);
+            } catch (org.springframework.web.client.HttpServerErrorException.ServiceUnavailable e) {
+                if (attempt < maxRetries) {
+                    log.warn("HF endpoint unavailable (cold start), retrying in {}s (attempt {}/{})",
+                            retryDelayMs / 1000, attempt, maxRetries);
+                    try {
+                        Thread.sleep(retryDelayMs);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Interrupted while waiting for HF endpoint", ie);
+                    }
+                } else {
+                    throw new RuntimeException("HF endpoint still unavailable after " + maxRetries + " retries", e);
+                }
+            }
+        }
+
+        throw new RuntimeException("Unexpected: retry loop exited without result");
     }
 
     /**
