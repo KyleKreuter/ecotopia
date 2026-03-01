@@ -1,153 +1,64 @@
 # Ecotopia: Fine-Tuning Mistral for Political Simulation
 
-> W&B Report — Generated 2026-02-28 17:20 UTC
+**Nolan Cacheux, Kyle Kreuter**
+
+W&B Report: https://wandb.ai/nolancacheux/hackathon-london-nolan-2026
 
 ## 1. Project Overview
 
-**Ecotopia** is a political eco-simulation game where players take on the role of a
-political leader managing environmental and social policies. The game uses fine-tuned
-LLMs for two core tasks:
+Ecotopia is a political simulation game. The player is mayor of a city facing ecological collapse: 7 rounds (5 years each), a tile-based city grid, and three resource bars (ecology, economy, research). Each round, the player gives a speech with promises that directly affect citizens and resources.
 
-- **Promise Extraction**: Parse political speeches/manifestos into structured campaign
-  promises with categories (environment, economy, social, security)
-- **Citizen Dialogue**: Generate realistic citizen reactions to political decisions,
-  reflecting diverse demographics and political leanings
+We fine-tuned **small Mistral models** to handle two structured JSON tasks in the game pipeline:
 
-## 2. Fine-Tuning Approach
+- **FT-Extract**: Takes the player's raw speech text and outputs structured JSON with every promise identified, its category (ecology/economy/research), whether it helps or hurts that resource, a deadline in game rounds, and any contradictions between promises. This feeds directly into the game engine to update resource bars.
+- **FT-Citizens**: Takes the extracted promises plus the current game state (resource levels, citizen trust scores, round number) and generates dynamic citizen reactions. Each citizen has a name, archetype (environmentalist, industrialist, scientist...), a mood, spoken dialogue, and a trust delta that shifts their relationship with the player.
 
-| Parameter | Value |
-|-----------|-------|
-| Base Model | Ministral-8B-Instruct-2410 |
-| Method | LoRA (Low-Rank Adaptation) |
-| LoRA rank (r) | 16 |
-| LoRA alpha | 32 |
-| Quantization | 4-bit NF4 (BitsAndBytes) |
-| Framework | TRL SFTTrainer + PEFT |
-| Optimizer | AdamW (8-bit) |
-| Learning Rate | 2e-4 |
-| Epochs | 3 |
-| Max Seq Length | 2048 |
+## 2. Technical Approach
 
-## 3. Dataset Details
+### QLoRA + SFT
 
-Two custom datasets were created for the fine-tuning:
+- **LoRA**: Trainable matrices (rank=16, alpha=32) injected alongside frozen weights. Only ~0.5% of parameters trained.
+- **QLoRA**: Base model quantized to 4-bit NF4, then LoRA applied. Fits a 24B model on a single 48GB GPU.
+- **SFT**: 690 input/output pairs generated via AWS Bedrock (Mistral Large). Under 10 minutes training per model.
 
-### Promise Extraction Dataset
-- **540 examples** of political text → structured JSON extraction
-- **4 categories**: environment, economy, social, security
-- Each example maps a political statement to structured promises with:
-  - Promise text, category, feasibility score, estimated cost, timeline
+### Training Data
 
-### Citizen Dialogue Dataset
-- **540 examples** of policy context → citizen reactions
-- **4 demographic profiles**: urban professional, rural farmer, student, retiree
-- Reactions include sentiment, concerns, support level, and dialogue
+- Extraction: 300 examples (270 train / 30 val), three difficulty levels
+- Citizens: 390 examples (351 train / 39 val), diverse scenarios and citizen types
 
-## 4. Training Results
+## 3. Models
 
-### Runs Summary
+### FT-Extract
 
-| Run | Type | Status | Key Metrics |
-|-----|------|--------|-------------|
-| ecotopia-extract-ministral-8b | training | failed | loss=N/A, acc=N/A |
-| ecotopia-extract-ministral-8b | training | finished | loss=0.4839, acc=N/A |
-| ecotopia-citizens-ministral-8b | training | finished | loss=0.2326, acc=N/A |
-| upload-ecotopia-extract-ministral-8b | artifact | finished | — |
-| upload-ecotopia-citizens-ministral-8b | artifact | finished | — |
+- **Ministral 8B**: LoRA r=16, alpha=32, 3 epochs, A10G 24GB
+- **Mistral Nemo 12B**: Same config, L40S 48GB
 
-### Training Metrics Detail
+### FT-Citizens
 
-**ecotopia-extract-ministral-8b**
+- **Mistral Small 24B**: QLoRA 4-bit, r=16, alpha=32, 3 epochs, L40S 48GB. 351 examples.
 
-**ecotopia-extract-ministral-8b**
-- `eval/entropy`: 0.535622
-- `eval/loss`: 0.552619
-- `eval/mean_token_accuracy`: 0.856070
-- `eval/num_tokens`: 119325
-- `eval/runtime`: 5.092000
-- `eval/samples_per_second`: 7.855000
-- `eval/steps_per_second`: 0.982000
-- `total_flos`: 6216038131580928
-- `train/entropy`: 0.520823
-- `train/epoch`: 3
-- `train/global_step`: 60
-- `train/grad_norm`: 0.238281
-- `train/learning_rate`: 0.000000
-- `train/loss`: 0.483934
-- `train/mean_token_accuracy`: 0.876084
-- `train/num_tokens`: 119325
-- `train_loss`: 0.722318
-- `train_runtime`: 204.242100
-- `train_samples_per_second`: 2.350000
-- `train_steps_per_second`: 0.294000
+## 4. Evaluation Results
 
-**ecotopia-citizens-ministral-8b**
-- `eval/entropy`: 0.260679
-- `eval/loss`: 0.257924
-- `eval/mean_token_accuracy`: 0.919433
-- `eval/num_tokens`: 350586
-- `eval/runtime`: 13.893600
-- `eval/samples_per_second`: 4.894000
-- `eval/steps_per_second`: 0.648000
-- `total_flos`: 18303223840505856
-- `train/entropy`: 0.254963
-- `train/epoch`: 3
-- `train/global_step`: 102
-- `train/grad_norm`: 0.122070
-- `train/learning_rate`: 0.000001
-- `train/loss`: 0.232616
-- `train/mean_token_accuracy`: 0.923674
-- `train/num_tokens`: 357216
-- `train_loss`: 0.477735
-- `train_runtime`: 593.374000
-- `train_samples_per_second`: 1.375000
-- `train_steps_per_second`: 0.172000
+### Promise Extraction (45 test examples)
 
-## 5. Architecture
+Both fine-tuned models beat Large on **promise count (+30%)** and **contradiction detection (+5%)**, at half the latency.
 
-```
-Political Text / Game Event
-        │
-        ▼
-┌─────────────────────┐
-│  Ministral 8B Base  │
-│  (4-bit NF4)        │
-│  + LoRA Adapters     │
-│  (r=16, α=32)       │
-└────────┬────────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-┌────────┐ ┌──────────┐
-│Extract │ │ Citizens │
-│LoRA    │ │ LoRA     │
-└───┬────┘ └────┬─────┘
-    │           │
-    ▼           ▼
-Structured   Citizen
-Promises     Dialogue
-(JSON)       (Natural)
-```
+### Citizen Reactions (39 validation examples)
 
-## 6. Key Findings
+Large returns markdown-wrapped JSON with wrong field names (**0% compliance**). The 24B FT gets **100%**.
 
-1. **LoRA efficiency**: 4-bit quantization + LoRA enables fine-tuning 8B models on
-   consumer GPUs (single A100 or equivalent)
-2. **Task specialization**: Separate adapters for extraction vs dialogue produces
-   better results than a single multi-task adapter
-3. **Structured output**: The extraction model reliably produces valid JSON with
-   correct schema after fine-tuning
-4. **TRL SFTTrainer**: Simplifies the training loop with built-in chat template
-   formatting and packing
+## 5. Key Findings
 
-## 7. Links
+- Small fine-tuned models beat Large on both tasks for structured output
+- 24B FT: **100% schema compliance** vs 0% for Large on citizen reactions
+- 8B/12B FT: **+30% promise count**, +5% contradiction detection vs Large
+- QLoRA fits 24B on a single 48GB GPU, trains in under 10 minutes
+- 690 Bedrock-generated examples are enough for strong task specialization
 
-- **HuggingFace Models**:
-  - [ecotopia-extract-ministral-8b](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-ministral-8b)
-  - [ecotopia-citizens-ministral-8b](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-ministral-8b)
-- **W&B Project**: [hackathon-london-nolan-2026](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026)
-  - [ecotopia-extract-ministral-8b](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/runs/rnmb007t)
-  - [ecotopia-extract-ministral-8b](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/runs/ydr264lg)
-  - [ecotopia-citizens-ministral-8b](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/runs/iqqdzc1m)
-  - [upload-ecotopia-extract-ministral-8b](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/runs/q0pfe51a)
-  - [upload-ecotopia-citizens-ministral-8b](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/runs/rtbktcb6)
+## 6. Resources
+
+- Models: [ecotopia-extract-ministral-8b](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-ministral-8b) (30.7MB LoRA)
+- Models: [ecotopia-extract-nemo-12b](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-nemo-12b) (39.4MB LoRA)
+- Models: [ecotopia-citizens-small-22b](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-small-22b) (69.8MB LoRA)
+- Datasets: [ecotopia-extraction-data](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-extraction-data) (300 examples)
+- Datasets: [ecotopia-citizens-data](https://huggingface.co/datasets/mistral-hackaton-2026/ecotopia-citizens-data) (390 examples)
