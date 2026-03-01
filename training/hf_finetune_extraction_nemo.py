@@ -14,7 +14,7 @@
 # ///
 """Fine-tune Mistral Nemo 12B on Ecotopia extraction data using TRL SFT + LoRA.
 
-Runs as a HuggingFace Job via: hf jobs uv run --flavor a10g-large hf_finetune_extraction_nemo.py
+Runs as a HuggingFace Job via: hf jobs uv run --flavor a100-large hf_finetune_extraction_nemo.py
 """
 
 import json
