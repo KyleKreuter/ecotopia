@@ -136,28 +136,6 @@ def main():
             rows.append(row)
             print(f"  → {row}")
 
-    # Hardcoded fine-tuned results
-    for difficulty in DIFFICULTIES:
-        if difficulty == "hard":
-            row = {
-                "Model": "ft:extraction-v1 (fine-tuned)",
-                "Difficulty": "HARD",
-                "Promise Count %": 93.3,
-                "Type Precision %": 91.7,
-                "Contradiction %": 86.7,
-                "Valid JSON %": 100.0,
-            }
-        else:
-            row = {
-                "Model": "ft:extraction-v1 (fine-tuned)",
-                "Difficulty": difficulty.upper(),
-                "Promise Count %": 100.0,
-                "Type Precision %": 100.0,
-                "Contradiction %": 100.0,
-                "Valid JSON %": 100.0,
-            }
-        rows.append(row)
-
     # Log W&B table
     table = wandb.Table(
         columns=["Model", "Difficulty", "Promise Count %", "Type Precision %", "Contradiction %", "Valid JSON %"],
