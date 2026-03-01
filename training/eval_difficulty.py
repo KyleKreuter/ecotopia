@@ -1,4 +1,8 @@
-"""Evaluate extraction models across difficulty levels (EASY/MEDIUM/HARD)."""
+"""Evaluate extraction models across difficulty levels (EASY/MEDIUM/HARD).
+
+Runs base Mistral models on test sets of varying difficulty and logs
+results to W&B with a comparison table.
+"""
 
 import json
 import os
@@ -17,6 +21,8 @@ SYSTEM_PROMPT = (
     "Types: ecology, economy, research. Impact: positive, negative. "
     "Deadline: short_term, medium_term, long_term."
 )
+METRIC_KEYS = ["valid_json", "promise_count", "type_precision", "contradiction"]
+TABLE_COLUMNS = ["Model", "Difficulty", "Promise Count %", "Type Precision %", "Contradiction %", "Valid JSON %"]
 
 
 def load_test_set(difficulty: str) -> list[dict]:
@@ -43,22 +49,16 @@ def parse_json_safe(text: str) -> dict | None:
         return None
 
 
-def evaluate_example(
-    predicted: dict | None, expected: dict
-) -> dict[str, float]:
+def evaluate_example(predicted: dict | None, expected: dict) -> dict[str, float]:
     """Score a single prediction against expected output."""
     if predicted is None:
-        return {"valid_json": 0, "promise_count": 0, "type_precision": 0, "contradiction": 0}
+        return {k: 0.0 for k in METRIC_KEYS}
 
     exp_promises = expected.get("promises", [])
     pred_promises = predicted.get("promises", [])
-    exp_contradictions = expected.get("contradictions", [])
-    pred_contradictions = predicted.get("contradictions", [])
 
-    # Promise count accuracy (1 if counts match)
     promise_count = 1.0 if len(pred_promises) == len(exp_promises) else 0.0
 
-    # Type precision (fraction of correctly typed promises)
     if not exp_promises:
         type_precision = 1.0 if not pred_promises else 0.0
     else:
@@ -67,9 +67,8 @@ def evaluate_example(
         matches = sum(1 for e, p in zip(exp_types, pred_types) if e == p)
         type_precision = matches / len(exp_types)
 
-    # Contradiction detection (1 if both have or both lack contradictions)
-    has_exp = len(exp_contradictions) > 0
-    has_pred = len(pred_contradictions) > 0
+    has_exp = len(expected.get("contradictions", [])) > 0
+    has_pred = len(predicted.get("contradictions", [])) > 0
     contradiction = 1.0 if has_exp == has_pred else 0.0
 
     return {
@@ -81,8 +80,8 @@ def evaluate_example(
 
 
 def evaluate_model(client: Mistral, model: str, examples: list[dict]) -> dict[str, float]:
-    """Evaluate a model on a set of examples."""
-    scores = {"valid_json": [], "promise_count": [], "type_precision": [], "contradiction": []}
+    """Evaluate a model on a set of examples, returning percentage scores."""
+    scores = {k: [] for k in METRIC_KEYS}
 
     for ex in examples:
         msgs = ex["messages"]
@@ -111,15 +110,12 @@ def main():
     """Run difficulty-level evaluation and log to W&B."""
     api_key = os.environ.get("MISTRAL_API_KEY")
     if not api_key:
-        raise ValueError("MISTRAL_API_KEY not set")
+        raise ValueError("MISTRAL_API_KEY environment variable not set")
 
     client = Mistral(api_key=api_key)
-
     wandb.init(project="ecotopia-extraction", name="difficulty-eval")
 
     rows = []
-
-    # Evaluate base models
     for model in MODELS:
         for difficulty in DIFFICULTIES:
             print(f"Evaluating {model} on {difficulty}...")
@@ -136,19 +132,18 @@ def main():
             rows.append(row)
             print(f"  → {row}")
 
-    # Log W&B table
     table = wandb.Table(
-        columns=["Model", "Difficulty", "Promise Count %", "Type Precision %", "Contradiction %", "Valid JSON %"],
-        data=[[r[c] for c in ["Model", "Difficulty", "Promise Count %", "Type Precision %", "Contradiction %", "Valid JSON %"]] for r in rows],
+        columns=TABLE_COLUMNS,
+        data=[[r[c] for c in TABLE_COLUMNS] for r in rows],
     )
     wandb.log({"difficulty_eval": table})
 
-    # Print summary
     print("\n" + "=" * 90)
     print(f"{'Model':<35} {'Difficulty':<12} {'Promise%':>10} {'Type%':>10} {'Contra%':>10} {'JSON%':>10}")
     print("=" * 90)
     for r in rows:
-        print(f"{r['Model']:<35} {r['Difficulty']:<12} {r['Promise Count %']:>10.1f} {r['Type Precision %']:>10.1f} {r['Contradiction %']:>10.1f} {r['Valid JSON %']:>10.1f}")
+        print(f"{r['Model']:<35} {r['Difficulty']:<12} {r['Promise Count %']:>10.1f} "
+              f"{r['Type Precision %']:>10.1f} {r['Contradiction %']:>10.1f} {r['Valid JSON %']:>10.1f}")
     print("=" * 90)
 
     wandb.finish()
