@@ -11,28 +11,39 @@ export class ResourcePanel {
       <div class="round-info">Round <span class="round-num">1</span>/7</div>
       <div class="resources">
         <div class="resource-bar ecology">
-          <span class="bar-label">ECO</span>
+          <span class="bar-icon">🌿</span>
+          <span class="bar-label">Ecology</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
         <div class="resource-bar economy">
-          <span class="bar-label">ECON</span>
+          <span class="bar-icon">💰</span>
+          <span class="bar-label">Economy</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
         <div class="resource-bar research">
-          <span class="bar-label">RES</span>
+          <span class="bar-icon">🔬</span>
+          <span class="bar-label">Research</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
       </div>
-      <div class="actions-info">Actions: <span class="actions-num">2</span></div>
-      <div class="tech-tree">
-        <span class="tech-label">TECH</span>
-        <div class="tech-track">
-          <div class="tech-fill" style="width: 5%"></div>
-          <div class="tech-marker solar" style="left: 40%"><span class="tech-icon solar">S</span></div>
-          <div class="tech-marker fusion" style="left: 80%"><span class="tech-icon fusion">F</span></div>
+      <div class="sidebar-divider"></div>
+      <div class="actions-info">Actions remaining: <span class="actions-num">2</span></div>
+      <div class="sidebar-divider"></div>
+      <div class="tech-section">
+        <div class="tech-header">Tech Progress</div>
+        <div class="tech-tree">
+          <div class="tech-track">
+            <div class="tech-fill" style="width: 5%"></div>
+            <div class="tech-marker solar" style="left: 40%"><span class="tech-icon solar">S</span></div>
+            <div class="tech-marker fusion" style="left: 80%"><span class="tech-icon fusion">F</span></div>
+          </div>
+        </div>
+        <div class="tech-legend">
+          <span class="tech-legend-item"><span class="tech-icon solar">S</span> Solar (40%)</span>
+          <span class="tech-legend-item"><span class="tech-icon fusion">F</span> Fusion (80%)</span>
         </div>
       </div>
     <div class="sidebar-divider"></div>

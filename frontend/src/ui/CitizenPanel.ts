@@ -43,14 +43,23 @@ export class CitizenPanel {
     const pct = Math.max(0, Math.min(100, c.approval));
     const label = isDynamic ? `${c.name} (${c.remainingRounds}r)` : c.name;
     const cls = pct < 25 ? ' critical' : '';
+    const approvalColor = pct >= 60 ? '#2ecc71' : pct >= 35 ? '#f39c12' : '#e74c3c';
+    const profession = c.profession || '';
+    const personality = c.personality ? c.personality.split('.')[0] + '.' : '';
 
     const avatarKey = this.avatarKey(c.name);
     return `
       <div class="citizen-entry${cls}">
-        <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${c.name}" width="40" height="40" onerror="this.style.display='none'">
-        <span class="citizen-name">${label}</span>
-        <div class="citizen-bar-track"><div class="citizen-bar-fill" style="width: ${pct}%"></div></div>
-        <span class="citizen-value">${c.approval}</span>
+        <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${c.name}" width="48" height="48" onerror="this.style.display='none'">
+        <div class="citizen-info">
+          <div class="citizen-header">
+            <span class="citizen-name">${label}</span>
+            <span class="citizen-value" style="color:${approvalColor}">${c.approval}%</span>
+          </div>
+          <div class="citizen-profession">${profession}${c.age ? ', ' + c.age : ''}</div>
+          <div class="citizen-bar-track"><div class="citizen-bar-fill" style="width: ${pct}%; background: ${approvalColor}"></div></div>
+          ${personality ? `<div class="citizen-personality">${personality}</div>` : ''}
+        </div>
       </div>
     `;
   }
