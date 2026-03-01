@@ -37,8 +37,8 @@ export const TILE_TYPES: Record<string, TileConfig> = {
   CLEAN_FACTORY:    { color: 0xcccccc, label: 'Clean Factory' },
   OIL_REFINERY:     { color: 0x999999, label: 'Oil Refinery' },
   COAL_PLANT:       { color: 0x888888, label: 'Coal Plant' },
-  RESIDENTIAL:      { color: 0xdddddd, label: 'Residential' },
-  CITY_CENTER:      { color: 0xcccccc, label: 'City Center' },
+  CITY_INNER:       { color: 0xdddddd, label: 'City Inner' },
+  CITY_OUTER:       { color: 0xcccccc, label: 'City Outer' },
   RESEARCH_CENTER:  { color: 0xbbbbbb, label: 'Research Center' },
   SOLAR_FIELD:      { color: 0xdddddd, label: 'Solar Field' },
   FUSION_REACTOR:   { color: 0xcccccc, label: 'Fusion Reactor' },
@@ -65,7 +65,6 @@ export const MULTI_TILE_SIZES: Record<string, MultiTileSize> = {
   SOLAR_FIELD:    { w: 2, h: 1 },
   OIL_REFINERY:   { w: 2, h: 2 },
   COAL_PLANT:     { w: 2, h: 2 },
-  CITY_CENTER:    { w: 2, h: 2 },
   FUSION_REACTOR: { w: 2, h: 2 },
 };
 
@@ -108,8 +107,8 @@ export const TILE_SPRITE_MAP: Record<string, SpriteMapping> = {
   DEAD_FARMLAND:  { sheet: 'ss_dirt_v2',   frame: 12 },
   WASTELAND:      { sheet: 'ss_dirt_wide', frame: 12 },
   // Buildings with sprites
-  RESIDENTIAL:    { sheet: 'ss_walls',     frame: 0 },
-  CITY_CENTER:    { sheet: 'ss_roof',      frame: 8 },
+  CITY_INNER:     { sheet: 'ss_walls',     frame: 0 },
+  CITY_OUTER:     { sheet: 'ss_roof',      frame: 8 },
   // Legacy demo types
   FOREST:         { sheet: 'ss_grass',     frame: 12 },
   PARK:           { sheet: 'ss_grass',     frame: 12, tint: 0x99DD99 },
@@ -131,8 +130,8 @@ export const TILE_ASSETS: Record<string, string> = {
   CLEAN_FACTORY:    '/assets/tiles/clean_factory.png',
   OIL_REFINERY:     '/assets/tiles/oil_refinery.png',
   COAL_PLANT:       '/assets/tiles/coal_plant.png',
-  RESIDENTIAL:      '/assets/tiles/residential.png',
-  CITY_CENTER:      '/assets/tiles/city_center.png',
+  CITY_INNER:       '/assets/tiles/city_inner.png',
+  CITY_OUTER:       '/assets/tiles/city_outer.png',
   RESEARCH_CENTER:  '/assets/tiles/research_center.png',
   SOLAR_FIELD:      '/assets/tiles/solar_field.png',
   FUSION_REACTOR:   '/assets/tiles/fusion_reactor.png',

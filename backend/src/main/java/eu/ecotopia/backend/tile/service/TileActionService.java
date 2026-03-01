@@ -73,7 +73,7 @@ public class TileActionService {
             case FARMLAND -> {
                 actions.add(TileActionType.CLEAR_FARMLAND);
             }
-            // Tiles with no actions: RESIDENTIAL, CITY_CENTER, CLEAN_RIVER, POLLUTED_RIVER,
+            // Tiles with no actions: CITY_INNER, CITY_OUTER, CLEAN_RIVER, POLLUTED_RIVER,
             // DEAD_FARMLAND, CLEAN_FACTORY, SOLAR_FIELD, FUSION_REACTOR, RESEARCH_CENTER
             default -> {
                 // No actions available
