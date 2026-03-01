@@ -115,7 +115,7 @@ function generateCitizens(): CitizenResponse[] {
       profession: 'Climate Activist',
       age: 24,
       personality: 'Passionate and uncompromising on environmental issues.',
-      approval: 35,
+      approval: 45,
       openingSpeech: 'The planet is burning and you want to talk about economy? Act now or step aside.',
       remainingRounds: null,
     },
@@ -126,7 +126,7 @@ function generateCitizens(): CitizenResponse[] {
       profession: 'Opposition Politician',
       age: 42,
       personality: 'Skeptical and always looking for contradictions in policy.',
-      approval: 25,
+      approval: 35,
       openingSpeech: 'I will be watching every decision you make. The people deserve accountability.',
       remainingRounds: null,
     },
@@ -180,10 +180,10 @@ const ACTIONS_BY_TYPE: Record<string, TileActionType[]> = {
 
 /** Actions that require a minimum research level */
 const RESEARCH_GATES: Partial<Record<TileActionType, { minResearch: number; tileTypes?: string[] }>> = {
-  BUILD_SOLAR: { minResearch: 40, tileTypes: ['WASTELAND'] },
+  BUILD_SOLAR: { minResearch: 25, tileTypes: ['WASTELAND'] },
   BUILD_FUSION: { minResearch: 80, tileTypes: ['WASTELAND'] },
   UPGRADE_CARBON_CAPTURE: { minResearch: 35, tileTypes: ['FACTORY'] },
-  REPLACE_WITH_SOLAR: { minResearch: 40, tileTypes: ['FACTORY', 'OIL_REFINERY', 'COAL_PLANT'] },
+  REPLACE_WITH_SOLAR: { minResearch: 25, tileTypes: ['FACTORY', 'OIL_REFINERY', 'COAL_PLANT'] },
 };
 
 function getAvailableActions(tileType: string, research: number): TileActionType[] {
@@ -338,7 +338,7 @@ function spawnCitizens(action: TileActionType, tileType: string, g: GameStateRes
     const demolishKey = `DEMOLISH:${tileType}`;
     const demolishDef = CITIZEN_SPAWNS[demolishKey];
     if (demolishDef && typeof demolishDef === 'object' && 'name' in demolishDef) {
-      if (g.citizens.length < 5) {
+      if (g.citizens.length < 5 && !g.citizens.some(c => c.name === demolishDef.name)) {
         g.citizens.push({
           id: nextId++, name: demolishDef.name, citizenType: 'DYNAMIC',
           profession: demolishDef.profession, age: demolishDef.age,
@@ -350,7 +350,7 @@ function spawnCitizens(action: TileActionType, tileType: string, g: GameStateRes
     }
     // Also spawn Lena
     const lenaDef = CITIZEN_SPAWNS['BUILD_SOLAR'] as DynamicCitizenDef;
-    if (g.citizens.length < 5) {
+    if (g.citizens.length < 5 && !g.citizens.some(c => c.name === lenaDef.name)) {
       g.citizens.push({
         id: nextId++, name: lenaDef.name, citizenType: 'DYNAMIC',
         profession: lenaDef.profession, age: lenaDef.age,
@@ -366,6 +366,8 @@ function spawnCitizens(action: TileActionType, tileType: string, g: GameStateRes
   const contextKey = `${action}:${tileType}`;
   const def = CITIZEN_SPAWNS[contextKey] ?? CITIZEN_SPAWNS[action];
   if (!def || typeof def === 'function') return;
+
+  if (g.citizens.some(c => c.name === def.name)) return;
 
   g.citizens.push({
     id: nextId++, name: def.name, citizenType: 'DYNAMIC',
@@ -396,17 +398,17 @@ const RESEARCH_CONTRIB: Record<string, number> = {
   RESEARCH_CENTER: +5,
 };
 
-function recalculateResources(tiles: TileResponse[]): { ecology: number; economy: number; research: number } {
-  let ecology = 0, economy = 0, research = 0;
+function recalculateResources(tiles: TileResponse[], currentResearch: number): { ecology: number; economy: number; research: number } {
+  let ecology = 0, economy = 0, researchDelta = 0;
   for (const t of tiles) {
     ecology += ECOLOGY_CONTRIB[t.tileType] ?? 0;
     economy += ECONOMY_CONTRIB[t.tileType] ?? 0;
-    research += RESEARCH_CONTRIB[t.tileType] ?? 0;
+    researchDelta += RESEARCH_CONTRIB[t.tileType] ?? 0;
   }
   return {
     ecology: clamp(ecology),
     economy: clamp(economy),
-    research: clamp(research),
+    research: clamp(currentResearch + researchDelta),
   };
 }
 
@@ -475,7 +477,7 @@ function checkGameOver(g: GameStateResponse): { defeated: boolean; reason: strin
   if (g.resources.economy < 20) return { defeated: true, reason: 'ECONOMIC_COLLAPSE' };
 
   const coreCitizens = g.citizens.filter((c) => c.citizenType === 'CORE');
-  if (coreCitizens.length > 0 && coreCitizens.every((c) => c.approval < 25)) {
+  if (coreCitizens.length > 0 && coreCitizens.every((c) => c.approval < 30)) {
     return { defeated: true, reason: 'VOTED_OUT' };
   }
 
@@ -555,6 +557,105 @@ const CONTRADICTION_TEMPLATES = [
 ];
 
 // ---------------------------------------------------------------------------
+// Demo speech reactions — hardcoded for 10-round GOLD victory
+// ---------------------------------------------------------------------------
+
+const DEMO_SPEECH_REACTIONS: Record<number, {
+  reactions: Array<{ citizenName: string; dialogue: string; tone: string; approvalDelta: number }>;
+  promises: Array<{ text: string; citizenName: string; deadline: number }>;
+}> = {
+  1: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Research centers? I hope this is not just wasted money. We need real jobs, not lab coats.', tone: 'skeptical', approvalDelta: +5 },
+      { citizenName: 'Mia', dialogue: 'Research is the first step toward real solutions. I support this!', tone: 'excited', approvalDelta: +8 },
+      { citizenName: 'Sarah', dialogue: 'Two research centers at once? Bold move. Let us see if it pays off.', tone: 'analytical', approvalDelta: +2 },
+      { citizenName: 'Dr. Yuki', dialogue: 'This is exactly what we need! Science will light the way forward.', tone: 'enthusiastic', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Invest in research to unlock green technology', citizenName: 'Dr. Yuki', deadline: 3 }],
+  },
+  2: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Planting trees is nice, but it does not put food on the table.', tone: 'pragmatic', approvalDelta: +2 },
+      { citizenName: 'Mia', dialogue: 'Reforestation! This is what real climate action looks like. Keep going!', tone: 'fierce', approvalDelta: +6 },
+      { citizenName: 'Sarah', dialogue: 'Trees on wasteland — modest but reasonable. I expected bolder moves though.', tone: 'sharp', approvalDelta: -2 },
+    ],
+    promises: [{ text: 'Continue restoring natural habitats', citizenName: 'Mia', deadline: 5 }],
+  },
+  3: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'You are tearing down the oil refinery? People work there! Think about the workers!', tone: 'angry', approvalDelta: -6 },
+      { citizenName: 'Mia', dialogue: 'The refinery is gone! This is a historic day for our environment!', tone: 'excited', approvalDelta: +7 },
+      { citizenName: 'Sarah', dialogue: 'Replacing fossil fuels with solar — risky for the economy but I see the logic.', tone: 'analytical', approvalDelta: +2 },
+      { citizenName: 'Oleg', dialogue: 'You destroyed my workplace. Where am I supposed to go now?', tone: 'bitter', approvalDelta: 0 },
+      { citizenName: 'Lena', dialogue: 'Solar panels where an oil refinery stood — this is real progress!', tone: 'enthusiastic', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Replace fossil infrastructure with clean energy', citizenName: 'Lena', deadline: 6 }],
+  },
+  4: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'More factories closing... I understand the plan but it hurts to watch.', tone: 'concerned', approvalDelta: -2 },
+      { citizenName: 'Mia', dialogue: 'Two more solar conversions! The grid is getting greener every round!', tone: 'excited', approvalDelta: +3 },
+      { citizenName: 'Sarah', dialogue: 'You are consistent, I give you that. But the economic numbers worry me.', tone: 'skeptical', approvalDelta: +2 },
+      { citizenName: 'Oleg', dialogue: 'At least solar fields need workers too. Maybe there is hope.', tone: 'cautious', approvalDelta: +5 },
+    ],
+    promises: [{ text: 'Create new green jobs for displaced workers', citizenName: 'Karl', deadline: 7 }],
+  },
+  5: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Okay, the solar jobs are real. My neighbor just got hired. Maybe this works after all.', tone: 'cautiously optimistic', approvalDelta: +7 },
+      { citizenName: 'Mia', dialogue: 'Solar expansion and another conversion — we are on the right track!', tone: 'excited', approvalDelta: +6 },
+      { citizenName: 'Sarah', dialogue: 'The economy is stabilizing despite the transition. Impressive.', tone: 'analytical', approvalDelta: +1 },
+      { citizenName: 'Lena', dialogue: 'More solar capacity means more clean energy for everyone!', tone: 'enthusiastic', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Keep expanding renewable energy infrastructure', citizenName: 'Mia', deadline: 8 }],
+  },
+  6: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Solar fields everywhere — and the economy is growing! I was wrong to doubt you.', tone: 'impressed', approvalDelta: +4 },
+      { citizenName: 'Mia', dialogue: 'Clean energy across the map. This is what I have been fighting for!', tone: 'passionate', approvalDelta: +2 },
+      { citizenName: 'Sarah', dialogue: 'The numbers are looking good for once. Credit where credit is due.', tone: 'approving', approvalDelta: +3 },
+    ],
+    promises: [{ text: 'Maintain economic growth alongside green transition', citizenName: 'Karl', deadline: 9 }],
+  },
+  7: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'The clean energy boom is creating real prosperity. I am a believer now.', tone: 'enthusiastic', approvalDelta: +5 },
+      { citizenName: 'Mia', dialogue: 'Two more solar fields! The ecology score is climbing beautifully.', tone: 'excited', approvalDelta: +5 },
+      { citizenName: 'Sarah', dialogue: 'Consistent progress across all metrics. You have earned some trust.', tone: 'grudgingly respectful', approvalDelta: +2 },
+      { citizenName: 'Lena', dialogue: 'Every new solar field brings us closer to a sustainable future!', tone: 'enthusiastic', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Push for fusion technology research', citizenName: 'Sarah', deadline: 10 }],
+  },
+  8: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Fusion reactors! This is the future! Jobs and clean energy combined!', tone: 'excited', approvalDelta: +7 },
+      { citizenName: 'Mia', dialogue: 'Fusion power — limitless clean energy! This changes everything!', tone: 'passionate', approvalDelta: +6 },
+      { citizenName: 'Sarah', dialogue: 'Fusion reactors... I never thought I would see the day. Even I am impressed.', tone: 'amazed', approvalDelta: +3 },
+      { citizenName: 'Pavel', dialogue: 'Fusion is the future. You have made a bold and wise choice.', tone: 'proud', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Achieve sustainable prosperity through fusion', citizenName: 'Pavel', deadline: 10 }],
+  },
+  9: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'Another fusion reactor! The economy is booming and the air is clean!', tone: 'delighted', approvalDelta: +5 },
+      { citizenName: 'Mia', dialogue: 'We are so close to a perfect score. Keep pushing!', tone: 'excited', approvalDelta: +5 },
+      { citizenName: 'Sarah', dialogue: 'I have to admit — this might be the most successful leadership we have seen.', tone: 'impressed', approvalDelta: +4 },
+      { citizenName: 'Pavel', dialogue: 'The fusion grid is expanding. Our city is becoming a beacon of hope!', tone: 'visionary', approvalDelta: 0 },
+      { citizenName: 'Lena', dialogue: 'Between fusion and solar, we have built a truly green grid!', tone: 'proud', approvalDelta: 0 },
+    ],
+    promises: [{ text: 'Finish strong with reforestation', citizenName: 'Mia', deadline: 10 }],
+  },
+  10: {
+    reactions: [
+      { citizenName: 'Karl', dialogue: 'From factories to forests and fusion — what a journey. You did it right.', tone: 'grateful', approvalDelta: +3 },
+      { citizenName: 'Mia', dialogue: 'Forests returning where wasteland stood. This is the world I dreamed of!', tone: 'emotional', approvalDelta: +2 },
+      { citizenName: 'Sarah', dialogue: 'Against all odds, you delivered on every promise. I stand corrected.', tone: 'respectful', approvalDelta: +5 },
+    ],
+    promises: [],
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Public mock API
 // ---------------------------------------------------------------------------
 
@@ -624,13 +725,38 @@ export const mockApi = {
   },
 
   async submitSpeech(gameId: number, text: string): Promise<SpeechResponse> {
-    await delay(300);
+    await delay(800);
     const g = games.get(gameId);
     if (!g) throw new Error(`Mock: game ${gameId} not found`);
 
     g.currentRoundInfo.speechText = text;
 
-    // 2-4 citizen reactions
+    const demoData = DEMO_SPEECH_REACTIONS[g.currentRound];
+    if (demoData) {
+      // Apply hardcoded approval deltas to citizens
+      const citizenReactions = demoData.reactions
+        .filter((r) => g.citizens.some((c) => c.name === r.citizenName))
+        .map((r) => {
+          const citizen = g.citizens.find((c) => c.name === r.citizenName)!;
+          citizen.approval = clamp(citizen.approval + r.approvalDelta);
+          return { citizenName: r.citizenName, dialogue: r.dialogue, tone: r.tone, approvalDelta: r.approvalDelta };
+        });
+
+      // Create promises
+      const extractedPromises: PromiseResponse[] = demoData.promises.map((p) => {
+        const promise: PromiseResponse = {
+          id: nextId++, text: p.text, roundMade: g.currentRound,
+          deadline: p.deadline, status: 'PENDING', citizenName: p.citizenName,
+        };
+        g.promises.push(promise);
+        return promise;
+      });
+
+      g.updatedAt = new Date().toISOString();
+      return { extractedPromises, contradictions: [], citizenReactions };
+    }
+
+    // Fallback: random reactions for rounds outside demo script
     const reactionCount = rand(2, Math.min(4, g.citizens.length));
     const shuffled = [...g.citizens].sort(() => Math.random() - 0.5);
     const citizenReactions = shuffled.slice(0, reactionCount).map((c) => {
@@ -645,11 +771,9 @@ export const mockApi = {
       };
     });
 
-    // 30% chance of contradiction
     const contradictions =
       Math.random() < 0.3 ? [pick(CONTRADICTION_TEMPLATES)] : [];
 
-    // 1 extracted promise
     const promise: PromiseResponse = {
       id: nextId++,
       text: text.length > 60 ? text.slice(0, 60) + '...' : text,
@@ -680,7 +804,7 @@ export const mockApi = {
     pollutionTick(g.tiles);
 
     // Deterministic resource recalculation from grid state
-    g.resources = recalculateResources(g.tiles);
+    g.resources = recalculateResources(g.tiles, g.resources.research);
 
     // Citizen lifecycle: decrement remainingRounds for DYNAMIC citizens, remove expired
     g.citizens = g.citizens.filter((c) => {
@@ -695,7 +819,7 @@ export const mockApi = {
       g.status = 'FINISHED';
       g.defeatReason = reason;
       g.resultRank = 'BRONZE';
-    } else if (g.currentRound > 7) {
+    } else if (g.currentRound > 10) {
       g.status = 'FINISHED';
       g.resultRank = computeRank(g);
     } else {

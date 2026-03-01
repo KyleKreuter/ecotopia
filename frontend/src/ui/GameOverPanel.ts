@@ -21,7 +21,7 @@ export class GameOverPanel {
       ${rankText ? `<div class="result-rank">${rankText}</div>` : ''}
       ${reasonText ? `<div class="result-rank">${reasonText}</div>` : ''}
       <div class="result-stats">
-        Round ${state.currentRound} / 7<br/>
+        Round ${state.currentRound} / 10<br/>
         Ecology: ${state.resources.ecology} | Economy: ${state.resources.economy} | Research: ${state.resources.research}<br/>
         Citizens: ${state.citizens.length}
       </div>

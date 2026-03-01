@@ -305,7 +305,7 @@ public class CitizenReactionService {
 
                 1. Generate EXACTLY one reaction per citizen listed above.
                 2. Each dialogue must be 2-4 sentences maximum.
-                3. approvalDelta must be between -15 and +15 (integer).
+                3. approvalDelta must be between -10 and +10 (integer).
                 4. Sarah quotes the player verbatim when promises are broken or contradictions are detected.
                 5. Dynamic citizens who just spawned should react to their personal situation.
                 6. If two dynamic citizens are present from the same event, they should reference each other.
@@ -337,7 +337,7 @@ public class CitizenReactionService {
                 You MUST include a reaction for each of these citizens: %s
 
                 Valid tones: angry, hopeful, sarcastic, desperate, grateful, suspicious, neutral
-                approvalDelta range: -15 to +15
+                approvalDelta range: -10 to +10
                 """.formatted(citizenNames));
     }
 

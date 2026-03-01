@@ -237,6 +237,11 @@ public class SpeechService {
             return;
         }
 
+        log.info("=== APPLYING APPROVAL DELTAS === game={} round={}", game.getId(), game.getCurrentRound());
+        for (Citizen c : game.getCitizens()) {
+            log.info("[BEFORE_SPEECH] Citizen '{}' ({}): approval={}", c.getName(), c.getCitizenType(), c.getApproval());
+        }
+
         List<Citizen> citizens = game.getCitizens();
 
         for (AiCitizenReaction reaction : reactions) {
@@ -246,14 +251,19 @@ public class SpeechService {
                     .ifPresentOrElse(
                             citizen -> {
                                 int oldApproval = citizen.getApproval();
-                                int newApproval = Math.max(0, Math.min(100, oldApproval + reaction.approvalDelta()));
+                                int clampedDelta = Math.max(-10, Math.min(10, reaction.approvalDelta()));
+                                int newApproval = Math.max(0, Math.min(100, oldApproval + clampedDelta));
                                 citizen.setApproval(newApproval);
-                                log.debug("Citizen '{}' approval: {} -> {} (delta: {})",
-                                        citizen.getName(), oldApproval, newApproval, reaction.approvalDelta());
+                                log.info("[SPEECH_DELTA] Citizen '{}': {} -> {} (clamped delta: {}, raw AI delta: {}, tone: {})",
+                                        citizen.getName(), oldApproval, newApproval, clampedDelta, reaction.approvalDelta(), reaction.tone());
                             },
                             () -> log.warn("Citizen '{}' not found in game {} for reaction application",
                                     reaction.citizenName(), game.getId())
                     );
+        }
+
+        for (Citizen c : game.getCitizens()) {
+            log.info("[AFTER_SPEECH] Citizen '{}' ({}): approval={}", c.getName(), c.getCitizenType(), c.getApproval());
         }
     }
 

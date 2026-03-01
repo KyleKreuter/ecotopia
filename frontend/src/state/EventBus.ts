@@ -10,6 +10,7 @@ export const GameEvents = {
   SPEECH_SUBMITTED: 'speech_submitted',
   SPEECH_RESPONSE: 'speech_response',
   ROUND_ENDED: 'round_ended',
+  REACTIONS_DONE: 'reactions_done',
   GAME_OVER: 'game_over',
   ERROR: 'error',
 } as const;

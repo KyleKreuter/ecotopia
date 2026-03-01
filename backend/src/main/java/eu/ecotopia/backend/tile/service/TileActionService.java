@@ -43,26 +43,26 @@ public class TileActionService {
                 if (research >= 35) {
                     actions.add(TileActionType.UPGRADE_CARBON_CAPTURE);
                 }
-                if (research >= 40) {
+                if (research >= 25) {
                     actions.add(TileActionType.REPLACE_WITH_SOLAR);
                 }
             }
             case OIL_REFINERY -> {
                 actions.add(TileActionType.DEMOLISH);
-                if (research >= 40) {
+                if (research >= 25) {
                     actions.add(TileActionType.REPLACE_WITH_SOLAR);
                 }
             }
             case COAL_PLANT -> {
                 actions.add(TileActionType.DEMOLISH);
-                if (research >= 40) {
+                if (research >= 25) {
                     actions.add(TileActionType.REPLACE_WITH_SOLAR);
                 }
             }
             case WASTELAND -> {
                 actions.add(TileActionType.PLANT_FOREST);
                 actions.add(TileActionType.BUILD_FACTORY);
-                if (research >= 40) {
+                if (research >= 25) {
                     actions.add(TileActionType.BUILD_SOLAR);
                 }
                 actions.add(TileActionType.BUILD_RESEARCH_CENTER);
