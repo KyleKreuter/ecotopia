@@ -11,7 +11,7 @@ Ecotopia puts you in charge of a dying city through 7 rounds of ecological crisi
 
 ## Architecture
 
-🎮 **Play now:** [ecotopia.nolancacheux.com](https://ecotopia.nolancacheux.com)
+**Play now:** [ecotopia.nolancacheux.com](https://ecotopia.nolancacheux.com) *(HF endpoints may be paused outside demo/hackathon — credits-based)*
 
 ```
 Speech → FT-Extract (12B) → Contradiction Detection → FT-Citizens (8B) → ElevenLabs TTS → UI
@@ -129,9 +129,9 @@ Both fine-tuned models are deployed on HuggingFace Inference Endpoints with NF4 
 
 Full training metrics, evaluation benchmarks, and model comparisons:
 
-📊 [Ecotopia: Fine-Tuning Mistral for Political Simulation (W&B)](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NzA3OA)
+[Ecotopia: Fine-Tuning Mistral for Political Simulation (W&B)](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NzA3OA)
 
-📄 [PDF Report](report/ecotopia-finetuning-report.pdf)
+[PDF Report](report/ecotopia-finetuning-report.pdf)
 
 ## License
 
