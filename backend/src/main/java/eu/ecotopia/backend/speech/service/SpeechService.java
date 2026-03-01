@@ -6,6 +6,7 @@ import eu.ecotopia.backend.common.dto.ContradictionResponse;
 import eu.ecotopia.backend.common.dto.PromiseResponse;
 import eu.ecotopia.backend.common.dto.SpeechResponse;
 import eu.ecotopia.backend.common.mapper.GameMapper;
+import eu.ecotopia.backend.speech.client.ElevenLabsClient;
 import eu.ecotopia.backend.game.model.Game;
 import eu.ecotopia.backend.game.model.GameStatus;
 import eu.ecotopia.backend.game.repository.GameRepository;
@@ -41,6 +42,7 @@ public class SpeechService {
     private final GameRoundRepository gameRoundRepository;
     private final PromiseExtractionService promiseExtractionService;
     private final CitizenReactionService citizenReactionService;
+    private final ElevenLabsClient elevenLabsClient;
 
     /**
      * Processes a player's speech through the full AI pipeline:
@@ -277,14 +279,18 @@ public class SpeechService {
                 .toList()
                 : List.of();
 
-        // Map citizen reactions to response DTOs
+        // Map citizen reactions to response DTOs with optional TTS audio
         List<CitizenReactionResponse> reactionResponses = reactionsResult.reactions() != null
                 ? reactionsResult.reactions().stream()
-                .map(r -> new CitizenReactionResponse(
-                        r.citizenName(),
-                        r.dialogue(),
-                        r.tone(),
-                        r.approvalDelta()))
+                .map(r -> {
+                    String audio = elevenLabsClient.generateSpeech(r.citizenName(), r.dialogue());
+                    return new CitizenReactionResponse(
+                            r.citizenName(),
+                            r.dialogue(),
+                            r.tone(),
+                            r.approvalDelta(),
+                            audio);
+                })
                 .toList()
                 : List.of();
 
