@@ -39,11 +39,19 @@ export class ReactionPanel {
     const hasAudio = r.audioBase64 ? '🔊' : '';
 
     const avatarKey = r.citizenName.toLowerCase();
+    const glowClass = r.approvalDelta >= 0 ? 'positive' : 'negative';
+    const toneColors: Record<string, string> = {
+      angry: '#e74c3c',
+      suspicious: '#f39c12',
+      hopeful: '#2ecc71',
+      sarcastic: '#9b59b6',
+    };
+    const dotColor = toneColors[r.tone] || '#888';
     return `
       <div class="reaction-entry reaction-${r.tone}">
         <div class="reaction-header">
-          <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${r.citizenName}" width="32" height="32">
-          <span class="reaction-name">${r.citizenName} ${hasAudio}</span>
+          <img class="citizen-avatar reacting ${glowClass}" src="/assets/character/${avatarKey}.png" alt="${r.citizenName}" width="32" height="32">
+          <span class="reaction-name">${r.citizenName} <span class="reaction-tone-dot" style="background:${dotColor}"></span> ${hasAudio}</span>
           <span class="reaction-delta ${deltaClass}">${deltaStr}</span>
         </div>
         <p class="reaction-dialogue">"${r.dialogue}"</p>

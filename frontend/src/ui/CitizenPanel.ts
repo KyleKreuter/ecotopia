@@ -19,6 +19,17 @@ export class CitizenPanel {
       .join('');
   }
 
+  /** Briefly add 'reacting' class to a citizen's avatar to trigger shake animation. */
+  triggerReaction(citizenName: string): void {
+    const avatarKey = citizenName.toLowerCase();
+    const img = this.el.querySelector(
+      `img.citizen-avatar[alt="${citizenName}"]`,
+    ) as HTMLElement | null;
+    if (!img) return;
+    img.classList.add('reacting');
+    setTimeout(() => img.classList.remove('reacting'), 1000);
+  }
+
   private renderCitizen(c: CitizenResponse, isDynamic = false): string {
     const pct = Math.max(0, Math.min(100, c.approval));
     const label = isDynamic ? `${c.name} (${c.remainingRounds}r)` : c.name;
