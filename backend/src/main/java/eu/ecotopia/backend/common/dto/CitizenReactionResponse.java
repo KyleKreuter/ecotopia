@@ -7,6 +7,7 @@ public record CitizenReactionResponse(
         String citizenName,
         String dialogue,
         String tone,
-        int approvalDelta
+        int approvalDelta,
+        String audioBase64
 ) {
 }
