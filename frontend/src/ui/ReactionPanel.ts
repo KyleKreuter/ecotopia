@@ -38,9 +38,11 @@ export class ReactionPanel {
     const deltaStr = r.approvalDelta >= 0 ? `+${r.approvalDelta}` : `${r.approvalDelta}`;
     const hasAudio = r.audioBase64 ? '🔊' : '';
 
+    const avatarKey = r.citizenName.toLowerCase();
     return `
       <div class="reaction-entry reaction-${r.tone}">
         <div class="reaction-header">
+          <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${r.citizenName}" width="32" height="32">
           <span class="reaction-name">${r.citizenName} ${hasAudio}</span>
           <span class="reaction-delta ${deltaClass}">${deltaStr}</span>
         </div>

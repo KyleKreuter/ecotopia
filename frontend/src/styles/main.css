@@ -476,6 +476,14 @@ body {
   line-height: 1.4;
 }
 
+.citizen-avatar {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 @keyframes slideUp {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }

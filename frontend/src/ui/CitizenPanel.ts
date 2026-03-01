@@ -24,8 +24,10 @@ export class CitizenPanel {
     const label = isDynamic ? `${c.name} (${c.remainingRounds}r)` : c.name;
     const cls = pct < 25 ? ' critical' : '';
 
+    const avatarKey = c.name.toLowerCase();
     return `
       <div class="citizen-entry${cls}">
+        <img class="citizen-avatar" src="/assets/character/${avatarKey}.png" alt="${c.name}" width="32" height="32">
         <span class="citizen-name">${label}</span>
         <div class="citizen-bar-track"><div class="citizen-bar-fill" style="width: ${pct}%"></div></div>
         <span class="citizen-value">${c.approval}</span>
