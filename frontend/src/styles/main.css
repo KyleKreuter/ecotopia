@@ -65,14 +65,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: rgba(255, 251, 241, 0.95);
-  border-bottom: 1px solid #000;
+  padding: 10px 20px;
+  background: rgba(26, 26, 46, 0.95);
+  border-bottom: 2px solid #0f3460;
   z-index: 20;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
 }
 
 .resource-panel .round-info {
   font-size: 20px;
+  letter-spacing: 1px;
+  color: #fff;
 }
 
 .resource-panel .resources {
@@ -84,89 +88,123 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+.resource-bar:hover {
+  transform: scale(1.03);
 }
 
 .resource-bar .bar-label {
   font-size: 16px;
   min-width: 80px;
+  color: #ccc;
 }
 
 .resource-bar .bar-track {
   width: 120px;
   height: 16px;
-  background: #fff;
-  border: 1px solid #000;
+  background: #0a0a1a;
+  border: 1px solid #333;
+  border-radius: 3px;
   position: relative;
+  overflow: hidden;
 }
 
 .resource-bar .bar-fill {
   height: 100%;
-  background: #000;
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
   transition: width 0.6s ease;
+  border-radius: 3px;
+}
+
+.resource-bar.economy .bar-fill {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.resource-bar.research .bar-fill {
+  background: linear-gradient(90deg, #3498db, #2980b9);
 }
 
 .resource-bar .bar-value {
   font-size: 16px;
   min-width: 36px;
   text-align: right;
+  color: #fff;
 }
 
 .resource-panel .actions-info {
   font-size: 16px;
+  color: #aaa;
 }
 
 /* Citizen Panel - Right Sidebar */
 .citizen-panel {
   position: absolute;
-  top: 52px;
+  top: 56px;
   right: 0;
-  min-width: 200px;
-  padding: 8px;
-  background: rgba(255, 251, 241, 0.95);
-  border-left: 1px solid #000;
-  border-bottom: 1px solid #000;
+  min-width: 220px;
+  padding: 10px;
+  background: rgba(22, 33, 62, 0.95);
+  border-left: 2px solid #0f3460;
+  border-bottom: 2px solid #0f3460;
+  border-radius: 0 0 0 8px;
+  box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.3);
   z-index: 20;
+  color: #e0e0e0;
 }
 
 .citizen-entry {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.citizen-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .citizen-entry.critical .citizen-name,
 .citizen-entry.critical .citizen-value {
-  color: #a00;
+  color: #ff6b6b;
 }
 
 .citizen-entry.critical .citizen-bar-fill {
-  background: #a00;
+  background: linear-gradient(90deg, #ff6b6b, #a00) !important;
 }
 
 .citizen-name {
   min-width: 90px;
   font-size: 14px;
+  color: #ccc;
 }
 
 .citizen-bar-track {
   width: 80px;
   height: 10px;
-  background: #fff;
-  border: 1px solid #000;
+  background: #0a0a1a;
+  border: 1px solid #333;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .citizen-bar-fill {
   height: 100%;
-  background: #000;
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
   transition: width 0.6s ease;
+  border-radius: 3px;
 }
 
 .citizen-value {
   min-width: 24px;
   text-align: right;
   font-size: 14px;
+  color: #fff;
 }
 
 /* Speech Panel - Backdrop */
@@ -586,6 +624,37 @@ body {
   image-rendering: pixelated;
   margin-right: 8px;
   vertical-align: middle;
+  animation: idle-bounce 2s infinite ease-in-out;
+}
+
+.citizen-avatar.reacting {
+  animation: react-shake 0.5s ease;
+}
+
+.citizen-avatar.positive {
+  filter: drop-shadow(0 0 4px rgba(0, 200, 80, 0.6));
+}
+
+.citizen-avatar.negative {
+  filter: drop-shadow(0 0 4px rgba(220, 40, 40, 0.6));
+}
+
+@keyframes idle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes react-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes react-jump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
 }
 
 @keyframes slideUp {

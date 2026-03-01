@@ -26,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Orchestrator service for the full AI speech processing pipeline.
@@ -36,6 +39,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class SpeechService {
+
+    private static final ExecutorService TTS_EXECUTOR = Executors.newFixedThreadPool(5);
 
     private final GameRepository gameRepository;
     private final PromiseRepository promiseRepository;
@@ -279,20 +284,23 @@ public class SpeechService {
                 .toList()
                 : List.of();
 
-        // Map citizen reactions to response DTOs with optional TTS audio
-        List<CitizenReactionResponse> reactionResponses = reactionsResult.reactions() != null
-                ? reactionsResult.reactions().stream()
-                .map(r -> {
-                    String audio = elevenLabsClient.generateSpeech(r.citizenName(), r.dialogue());
-                    return new CitizenReactionResponse(
-                            r.citizenName(),
-                            r.dialogue(),
-                            r.tone(),
-                            r.approvalDelta(),
-                            audio);
-                })
-                .toList()
-                : List.of();
+        // Map citizen reactions to response DTOs with parallel TTS audio generation
+        List<CitizenReactionResponse> reactionResponses;
+        if (reactionsResult.reactions() != null && !reactionsResult.reactions().isEmpty()) {
+            List<CompletableFuture<CitizenReactionResponse>> futures = reactionsResult.reactions().stream()
+                    .map(r -> CompletableFuture.supplyAsync(() -> {
+                        String audio = elevenLabsClient.generateSpeech(r.citizenName(), r.dialogue());
+                        return new CitizenReactionResponse(
+                                r.citizenName(), r.dialogue(), r.tone(), r.approvalDelta(), audio);
+                    }, TTS_EXECUTOR))
+                    .toList();
+
+            reactionResponses = futures.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+        } else {
+            reactionResponses = List.of();
+        }
 
         return new SpeechResponse(promiseResponses, contradictionResponses, reactionResponses);
     }
