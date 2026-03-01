@@ -75,6 +75,7 @@ export interface CitizenReactionResponse {
   dialogue: string;
   tone: string;
   approvalDelta: number;
+  audioBase64: string | null;
 }
 
 export type TileActionType =

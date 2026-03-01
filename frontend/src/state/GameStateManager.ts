@@ -61,7 +61,7 @@ class GameStateManager {
     eventBus.emit(GameEvents.ROUND_ENDED, { oldRound, newRound: this.state.currentRound });
     eventBus.emit(GameEvents.STATE_CHANGED, this.state);
 
-    if (this.state.status !== 'IN_PROGRESS') {
+    if (this.state.status !== 'RUNNING') {
       eventBus.emit(GameEvents.GAME_OVER, this.state);
     } else {
       eventBus.emit(GameEvents.PHASE_CHANGED, 'action');
