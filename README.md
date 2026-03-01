@@ -11,16 +11,18 @@ Ecotopia puts you in charge of a dying city through 7 rounds of ecological crisi
 
 ## Architecture
 
+🎮 **Play now:** [ecotopia.nolancacheux.com](https://ecotopia.nolancacheux.com)
+
 ```
-Speech → FT-Extract (8B) → Contradiction Detection → FT-Citizens (24B) → ElevenLabs TTS → UI
+Speech → FT-Extract (12B) → Contradiction Detection → FT-Citizens (8B) → ElevenLabs TTS → UI
 ```
 
 | Stage | Description |
 |-------|-------------|
 | Speech Input | Player types a free-text speech |
-| FT-Extract | Fine-tuned Ministral 8B extracts promises with deadlines and detects contradictions (JSON) |
+| FT-Extract | Fine-tuned Mistral Nemo 12B extracts promises with deadlines and detects contradictions (JSON) |
 | Game Engine | Deterministic state updates: ecology, economy, research scores |
-| FT-Citizens | Fine-tuned Mistral Small 22B generates citizen reactions, dialogues, and approval deltas |
+| FT-Citizens | Fine-tuned Ministral 8B generates citizen reactions, dialogues, and approval deltas |
 | TTS | ElevenLabs gives each citizen a unique voice (10 voice profiles) |
 | UI | Phaser 3 pixel art frontend with tile grid, citizen sprites, and speech bubbles |
 
@@ -40,6 +42,7 @@ Speech → FT-Extract (8B) → Contradiction Detection → FT-Citizens (24B) →
 |-------|------|------|-------------|
 | ecotopia-extract-ministral-8b | Promise extraction | Ministral 8B Instruct | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-ministral-8b) / [Merged](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-8b-merged) |
 | ecotopia-extract-nemo-12b | Promise extraction | Mistral Nemo 12B | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-extract-nemo-12b) |
+| ecotopia-citizens-ministral-8b | Citizen reactions | Ministral 8B Instruct | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-ministral-8b) / [Merged](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-8b-merged) |
 | ecotopia-citizens-small-22b | Citizen reactions | Mistral Small 22B | [LoRA](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-small-22b) / [Merged](https://huggingface.co/mistral-hackaton-2026/ecotopia-citizens-24b-merged) |
 
 **Datasets:**
@@ -126,7 +129,9 @@ Both fine-tuned models are deployed on HuggingFace Inference Endpoints with NF4 
 
 Full training metrics, evaluation benchmarks, and model comparisons:
 
-[Ecotopia: Fine-Tuning Mistral for Political Simulation](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia:-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NzA3OA==)
+📊 [Ecotopia: Fine-Tuning Mistral for Political Simulation (W&B)](https://wandb.ai/nolancacheux/hackathon-london-nolan-2026/reports/Ecotopia-Fine-Tuning-Mistral-for-Political-Simulation--VmlldzoxNjA2NzA3OA)
+
+📄 [PDF Report](report/ecotopia-finetuning-report.pdf)
 
 ## License
 
