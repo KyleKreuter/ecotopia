@@ -26,6 +26,14 @@ export class ResourcePanel {
         </div>
       </div>
       <div class="actions-info">Actions: <span class="actions-num">2</span></div>
+      <div class="tech-tree">
+        <span class="tech-label">TECH</span>
+        <div class="tech-track">
+          <div class="tech-fill" style="width: 5%"></div>
+          <div class="tech-marker solar" style="left: 40%">☀️</div>
+          <div class="tech-marker fusion" style="left: 80%">⚛️</div>
+        </div>
+      </div>
     `;
     parent.appendChild(this.el);
   }
@@ -40,6 +48,18 @@ export class ResourcePanel {
     this.updateBar('ecology', state.resources.ecology);
     this.updateBar('economy', state.resources.economy);
     this.updateBar('research', state.resources.research);
+
+    // Update tech tree
+    const techFill = this.el.querySelector('.tech-fill') as HTMLElement;
+    if (techFill) techFill.style.width = `${state.resources.research}%`;
+    const solarMarker = this.el.querySelector('.tech-marker.solar') as HTMLElement;
+    if (solarMarker) solarMarker.classList.toggle('unlocked', state.resources.research >= 40);
+    const fusionMarker = this.el.querySelector('.tech-marker.fusion') as HTMLElement;
+    if (fusionMarker) fusionMarker.classList.toggle('unlocked', state.resources.research >= 80);
+
+    // Color code resource bars based on danger
+    this.updateBarDanger('ecology', state.resources.ecology);
+    this.updateBarDanger('economy', state.resources.economy);
   }
 
   private updateBar(type: string, value: number): void {
@@ -49,6 +69,13 @@ export class ResourcePanel {
     const valEl = bar.querySelector('.bar-value');
     if (fill) fill.style.width = `${Math.max(0, Math.min(100, value))}%`;
     if (valEl) valEl.textContent = String(value);
+  }
+
+  private updateBarDanger(type: string, value: number): void {
+    const bar = this.el.querySelector(`.resource-bar.${type}`) as HTMLElement;
+    if (!bar) return;
+    bar.classList.toggle('danger', value < 25);
+    bar.classList.toggle('warning', value >= 25 && value < 40);
   }
 
   destroy(): void {
