@@ -23,6 +23,10 @@ export class BootScene extends Phaser.Scene {
       'soundtrack/Drifting Memories.mp3',
     ]);
 
+    const characters = ['karl', 'mia', 'sarah', 'bernd', 'henning', 'kerstin', 'lena', 'oleg', 'pavel', 'yuki'];
+    for (const name of characters) {
+      this.load.image(`char_${name}`, `/assets/character/${name}.png`);
+    }
   }
 
   async create(): Promise<void> {

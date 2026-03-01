@@ -7,25 +7,46 @@ export class ResourcePanel {
     this.el = document.createElement('div');
     this.el.className = 'resource-panel';
     this.el.innerHTML = `
+      <div class="panel-header">Resources</div>
       <div class="round-info">Round <span class="round-num">1</span>/7</div>
       <div class="resources">
         <div class="resource-bar ecology">
-          <span class="bar-label">ECO</span>
+          <span class="bar-icon">🌿</span>
+          <span class="bar-label">Ecology</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
         <div class="resource-bar economy">
-          <span class="bar-label">ECON</span>
+          <span class="bar-icon">💰</span>
+          <span class="bar-label">Economy</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
         <div class="resource-bar research">
-          <span class="bar-label">RES</span>
+          <span class="bar-icon">🔬</span>
+          <span class="bar-label">Research</span>
           <div class="bar-track"><div class="bar-fill" style="width: 50%"></div></div>
           <span class="bar-value">50</span>
         </div>
       </div>
-      <div class="actions-info">Actions: <span class="actions-num">2</span></div>
+      <div class="sidebar-divider"></div>
+      <div class="actions-info">Actions remaining: <span class="actions-num">2</span></div>
+      <div class="sidebar-divider"></div>
+      <div class="tech-section">
+        <div class="tech-header">Tech Progress</div>
+        <div class="tech-tree">
+          <div class="tech-track">
+            <div class="tech-fill" style="width: 5%"></div>
+            <div class="tech-marker solar" style="left: 40%"><span class="tech-icon solar">S</span></div>
+            <div class="tech-marker fusion" style="left: 80%"><span class="tech-icon fusion">F</span></div>
+          </div>
+        </div>
+        <div class="tech-legend">
+          <span class="tech-legend-item"><span class="tech-icon solar">S</span> Solar (40%)</span>
+          <span class="tech-legend-item"><span class="tech-icon fusion">F</span> Fusion (80%)</span>
+        </div>
+      </div>
+    <div class="sidebar-divider"></div>
     `;
     parent.appendChild(this.el);
   }
@@ -40,6 +61,18 @@ export class ResourcePanel {
     this.updateBar('ecology', state.resources.ecology);
     this.updateBar('economy', state.resources.economy);
     this.updateBar('research', state.resources.research);
+
+    // Update tech tree
+    const techFill = this.el.querySelector('.tech-fill') as HTMLElement;
+    if (techFill) techFill.style.width = `${state.resources.research}%`;
+    const solarMarker = this.el.querySelector('.tech-marker.solar') as HTMLElement;
+    if (solarMarker) solarMarker.classList.toggle('unlocked', state.resources.research >= 40);
+    const fusionMarker = this.el.querySelector('.tech-marker.fusion') as HTMLElement;
+    if (fusionMarker) fusionMarker.classList.toggle('unlocked', state.resources.research >= 80);
+
+    // Color code resource bars based on danger
+    this.updateBarDanger('ecology', state.resources.ecology);
+    this.updateBarDanger('economy', state.resources.economy);
   }
 
   private updateBar(type: string, value: number): void {
@@ -49,6 +82,13 @@ export class ResourcePanel {
     const valEl = bar.querySelector('.bar-value');
     if (fill) fill.style.width = `${Math.max(0, Math.min(100, value))}%`;
     if (valEl) valEl.textContent = String(value);
+  }
+
+  private updateBarDanger(type: string, value: number): void {
+    const bar = this.el.querySelector(`.resource-bar.${type}`) as HTMLElement;
+    if (!bar) return;
+    bar.classList.toggle('danger', value < 25);
+    bar.classList.toggle('warning', value >= 25 && value < 40);
   }
 
   destroy(): void {

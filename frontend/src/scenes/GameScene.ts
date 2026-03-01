@@ -144,6 +144,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setupEventListeners(): void {
+    eventBus.on(GameEvents.PHASE_CHANGED, (phase: unknown) => {
+      if (phase === 'speech') {
+        this.actionMenu.hide();
+        this.tooltip.hide();
+        this.cursor.hide();
+      }
+    });
+
     eventBus.on(GameEvents.STATE_CHANGED, (state: unknown) => {
       const s = state as import('../types/backend.ts').GameStateResponse;
       this.grid.updateFromState(s.tiles);
