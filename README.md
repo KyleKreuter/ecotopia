@@ -63,23 +63,25 @@ Open `http://localhost:5173` in your browser.
 
 ## Inference Endpoints (HuggingFace)
 
-Both fine-tuned models are deployed on HuggingFace Inference Endpoints using TGI (Text Generation Inference) with LoRA adapters. Endpoints scale to zero when idle.
+Both fine-tuned models are deployed on HuggingFace Inference Endpoints with NF4 quantization. Endpoints scale to zero when idle (15 min timeout).
 
-| Model | Endpoint |
-|-------|----------|
-| 8B Extract | `https://xsam38gf1zpvndtj.us-east-1.aws.endpoints.huggingface.cloud` |
-| 24B Citizens | `https://q574xtmjmyojmv8q.us-east-1.aws.endpoints.huggingface.cloud` |
+| Model | HF Repo |
+|-------|---------|
+| 8B Extract (Ministral 8B) | `mistral-hackaton-2026/ecotopia-extract-8b-merged` |
+| 24B Citizens (Mistral Small) | `mistral-hackaton-2026/ecotopia-citizens-24b-merged` |
 
-The endpoints expose an OpenAI-compatible API. Example usage:
+Endpoint URLs are private. Set `EXTRACT_ENDPOINT_URL` and `CITIZENS_ENDPOINT_URL` as environment variables.
 
 ```bash
-curl https://xsam38gf1zpvndtj.us-east-1.aws.endpoints.huggingface.cloud/v1/chat/completions \
+curl $EXTRACT_ENDPOINT_URL \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $HF_TOKEN" \
   -d '{
-    "model": "tgi",
-    "messages": [{"role": "user", "content": "Extract promises from this speech..."}],
-    "max_tokens": 512
+    "inputs": [
+      {"role": "system", "content": "Extract promises from the mayor speech as JSON."},
+      {"role": "user", "content": "I will build solar panels by round 3."}
+    ],
+    "parameters": {"max_new_tokens": 512, "temperature": 0.3}
   }'
 ```
 
