@@ -64,7 +64,7 @@ class PromiseExtractionServiceTest {
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        service = new PromiseExtractionService(chatClientBuilder, objectMapper, promiseRepository, citizenRepository);
+        service = new PromiseExtractionService(chatClientBuilder, new eu.ecotopia.backend.speech.client.HuggingFaceClient(objectMapper), objectMapper, promiseRepository, citizenRepository);
     }
 
     @Test
