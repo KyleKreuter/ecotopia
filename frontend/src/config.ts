@@ -3,10 +3,11 @@ export const GRID_SIZE = 10;
 
 /** Compute tile size so the grid fills the center area between sidebars. */
 export function initTileSize(viewportW: number, viewportH: number): void {
-  // Reserve space for left sidebar (220px) + right sidebar (260px) + top bar (56px)
-  const availW = viewportW - 480;
-  const availH = viewportH - 70;
-  TILE_SIZE = Math.max(32, Math.floor(Math.min(availW, availH) * 0.95 / GRID_SIZE));
+  const sidebarLeft = 200;
+  const sidebarRight = 240;
+  const availW = viewportW - sidebarLeft - sidebarRight - 16;
+  const availH = viewportH - 16;
+  TILE_SIZE = Math.max(40, Math.floor(Math.min(availW, availH) / GRID_SIZE));
 }
 
 export const COLORS = {

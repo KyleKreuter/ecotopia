@@ -33,9 +33,10 @@ export class TileGrid {
     const cam = this.scene.cameras.main;
     const totalW = GRID_SIZE * TILE_SIZE;
     const totalH = GRID_SIZE * TILE_SIZE;
-    // Offset center to account for left sidebar (220px) and right sidebar (260px)
-    const centerX = 220 + (cam.width - 220 - 260) / 2;
-    const centerY = 56 + (cam.height - 56) / 2;
+    const sidebarLeft = 200;
+    const sidebarRight = 240;
+    const centerX = sidebarLeft + (cam.width - sidebarLeft - sidebarRight) / 2;
+    const centerY = cam.height / 2;
     this.originX = Math.floor(centerX - totalW / 2);
     this.originY = Math.floor(centerY - totalH / 2);
   }
@@ -54,6 +55,26 @@ export class TileGrid {
       }
     }
 
+    // Draw grid lines and border
+    const g = this.scene.add.graphics();
+    const totalW = GRID_SIZE * TILE_SIZE;
+    const totalH = GRID_SIZE * TILE_SIZE;
+
+    // Subtle grid lines
+    g.lineStyle(1, 0x000000, 0.15);
+    for (let i = 1; i < GRID_SIZE; i++) {
+      g.moveTo(i * TILE_SIZE, 0);
+      g.lineTo(i * TILE_SIZE, totalH);
+      g.moveTo(0, i * TILE_SIZE);
+      g.lineTo(totalW, i * TILE_SIZE);
+    }
+    g.strokePath();
+
+    // Outer border
+    g.lineStyle(3, 0x0f3460, 0.8);
+    g.strokeRect(0, 0, totalW, totalH);
+
+    this.container.add(g);
   }
 
   /** Convert screen coordinates to grid coordinates (or null if outside or ocean) */
