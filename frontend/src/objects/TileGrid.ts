@@ -4,7 +4,6 @@ import { TileSprite } from './TileSprite.ts';
 import { MultiTileManager, type MultiTileCluster } from './MultiTileManager.ts';
 import { isWater, computeWaterMask, resolveOverlays } from './WaterTransitions.ts';
 import { isOcean } from './IslandMask.ts';
-import { isCity, computeCityBorderMask, resolveCityOverlays } from './CityTransitions.ts';
 
 import type { TileResponse } from '../types/backend.ts';
 
@@ -85,7 +84,6 @@ export class TileGrid {
 
     this.updateMultiTileOverlays(tileData);
     this.updateWaterTransitions();
-    this.updateCityTransitions();
   }
 
   private updateMultiTileOverlays(tileData: TileResponse[]): void {
@@ -117,28 +115,6 @@ export class TileGrid {
 
     this.container.add(overlay);
     this.multiTileOverlays.push(overlay);
-  }
-
-  private updateCityTransitions(): void {
-    for (let y = 0; y < GRID_SIZE; y++) {
-      for (let x = 0; x < GRID_SIZE; x++) {
-        const tile = this.tiles[y][x];
-
-        if (!isCity(tile.tileType)) {
-          tile.clearCityOverlays();
-          continue;
-        }
-
-        const mask = computeCityBorderMask(this, x, y);
-        if (mask === 0) {
-          tile.clearCityOverlays();
-          continue;
-        }
-
-        const specs = resolveCityOverlays(mask);
-        tile.applyCityOverlays(specs);
-      }
-    }
   }
 
   private updateWaterTransitions(): void {

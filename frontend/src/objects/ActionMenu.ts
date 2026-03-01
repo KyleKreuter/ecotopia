@@ -25,9 +25,9 @@ export class ActionMenu {
     const px = pos.x;
     const py = pos.y + TILE_SIZE + 4;
 
-    const itemHeight = 24;
-    const menuWidth = 220;
-    const menuHeight = actions.length * itemHeight + 8;
+    const itemHeight = 36;
+    const menuWidth = 300;
+    const menuHeight = actions.length * itemHeight + 12;
 
     const bg = this.scene.add.graphics();
     bg.fillStyle(0xffffff, 0.95);
@@ -38,9 +38,9 @@ export class ActionMenu {
 
     actions.forEach((action, i) => {
       const label = ACTION_LABELS[action] ?? action;
-      const text = this.scene.add.text(8, 4 + i * itemHeight, label, {
+      const text = this.scene.add.text(12, 6 + i * itemHeight, label, {
         fontFamily: 'BitPotionExt, monospace',
-        fontSize: '8px',
+        fontSize: '18px',
         color: '#000000',
       }).setInteractive({ useHandCursor: true });
 

@@ -26,8 +26,8 @@ public class GameInitializer {
                 .currentRound(1)
                 .status(GameStatus.RUNNING)
                 .resources(GameResources.builder()
-                        .ecology(45)
-                        .economy(65)
+                        .ecology(40)
+                        .economy(70)
                         .research(5)
                         .build())
                 .build();

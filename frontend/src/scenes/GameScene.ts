@@ -1,19 +1,26 @@
 import Phaser from 'phaser';
 import { TileGrid } from '../objects/TileGrid.ts';
 import { TileCursor } from '../objects/TileCursor.ts';
+import { TileTooltip } from '../objects/TileTooltip.ts';
 import { ActionMenu } from '../objects/ActionMenu.ts';
 import { ParticleEffects } from '../objects/ParticleEffects.ts';
+import { ClickEffect } from '../objects/ClickEffect.ts';
 import { gameState } from '../state/GameStateManager.ts';
+import { TileActionCache } from '../state/TileActionCache.ts';
 import { eventBus, GameEvents } from '../state/EventBus.ts';
 import { UIManager } from '../ui/UIManager.ts';
+import { TILE_TYPES } from '../config.ts';
 import type { TileActionType } from '../types/backend.ts';
 
 export class GameScene extends Phaser.Scene {
   private grid!: TileGrid;
   private cursor!: TileCursor;
+  private tooltip!: TileTooltip;
   private actionMenu!: ActionMenu;
   private particles!: ParticleEffects;
+  private clickEffect!: ClickEffect;
   private uiManager!: UIManager;
+  private actionCache!: TileActionCache;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -21,11 +28,15 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
+    this.input.setDefaultCursor("url('/assets/ui/cursor_default.png') 1 1, auto");
 
     this.grid = new TileGrid(this);
     this.cursor = new TileCursor(this, this.grid);
+    this.tooltip = new TileTooltip();
     this.actionMenu = new ActionMenu(this, this.grid);
     this.particles = new ParticleEffects(this, this.grid);
+    this.clickEffect = new ClickEffect(this);
+    this.actionCache = new TileActionCache();
 
     this.uiManager = new UIManager();
 
@@ -37,19 +48,50 @@ export class GameScene extends Phaser.Scene {
 
     this.setupInput();
     this.setupEventListeners();
+
+    this.events.on('shutdown', this.shutdown, this);
   }
 
   private setupInput(): void {
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      const state = gameState.gameState;
+      if (state && state.currentRoundInfo.remainingActions === 0) {
+        this.tooltip.hide();
+        return;
+      }
+
       const cell = this.grid.screenToGrid(pointer.x, pointer.y);
       if (cell) {
         this.cursor.show(cell.x, cell.y);
+
+        const tile = this.grid.getTile(cell.x, cell.y);
+        const tileType = tile?.tileType ?? 'EMPTY';
+        const label = TILE_TYPES[tileType]?.label ?? tileType;
+
+        if (this.actionCache.hasCache(cell.x, cell.y)) {
+          const actions = this.actionCache.getCached(cell.x, cell.y)!;
+          this.tooltip.show(pointer.x, pointer.y, label, actions.length > 0 ? 'editable' : 'locked');
+        } else {
+          this.tooltip.show(pointer.x, pointer.y, label, 'loading');
+          this.actionCache.getActions(cell.x, cell.y).then((actions) => {
+            // Only update if still hovering the same cell
+            const current = this.grid.screenToGrid(this.input.activePointer.x, this.input.activePointer.y);
+            if (current && current.x === cell.x && current.y === cell.y) {
+              this.tooltip.show(this.input.activePointer.x, this.input.activePointer.y, label, actions.length > 0 ? 'editable' : 'locked');
+            }
+          }).catch(() => {
+            // Silently ignore — tooltip stays in loading state
+          });
+        }
       } else {
         this.cursor.hide();
+        this.tooltip.hide();
       }
     });
 
     this.input.on('pointerdown', async (pointer: Phaser.Input.Pointer) => {
+      this.clickEffect.play(pointer.x, pointer.y);
+
       if (this.actionMenu.getVisible()) {
         // Click inside menu → let ActionMenu handle it via pointerup
         // Click outside menu → close it
@@ -106,6 +148,7 @@ export class GameScene extends Phaser.Scene {
       const s = state as import('../types/backend.ts').GameStateResponse;
       this.grid.updateFromState(s.tiles);
       this.uiManager.updateAll(s);
+      this.actionCache.invalidate();
     });
 
     eventBus.on(GameEvents.ROUND_ENDED, (data: unknown) => {
@@ -135,7 +178,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   shutdown(): void {
-    eventBus.clear();
+    this.tooltip.hide();
+    this.actionMenu.hide();
+    this.tooltip.destroy();
     this.uiManager.destroy();
+    eventBus.clear();
   }
 }

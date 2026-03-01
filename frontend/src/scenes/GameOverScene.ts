@@ -18,14 +18,18 @@ export class GameOverScene extends Phaser.Scene {
       return;
     }
 
+    this.events.on('shutdown', this.shutdown, this);
+
     // Show game over panel (HTML overlay)
     this.panel = new GameOverPanel(state, () => {
       this.panel?.destroy();
+      this.panel = null;
       this.scene.start('TitleScene');
     });
   }
 
   shutdown(): void {
     this.panel?.destroy();
+    this.panel = null;
   }
 }
