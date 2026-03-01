@@ -44,7 +44,7 @@ export class SpeechPanel {
     if (!text) return;
 
     this.submitBtn.disabled = true;
-    this.submitBtn.textContent = 'Speaking...';
+    this.submitBtn.innerHTML = '<span class="loading-spinner"></span> Speaking';
 
     try {
       await gameState.submitSpeech(text);
@@ -93,7 +93,7 @@ export class SpeechPanel {
     this.contextHint.style.display = 'block';
     this.contextHint.innerHTML = [
       `<strong>Round ${currentRound}</strong>`,
-      `🌿 Ecology ${resources.ecology}% · 💰 Economy ${resources.economy}% · 🔬 Research ${resources.research}%`,
+      `Ecology ${resources.ecology}% / Economy ${resources.economy}% / Research ${resources.research}%`,
       citizenLines,
       `${activePromises} active promise${activePromises !== 1 ? 's' : ''}`,
     ].join('<br>');

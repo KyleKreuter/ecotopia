@@ -30,8 +30,8 @@ export class ResourcePanel {
         <span class="tech-label">TECH</span>
         <div class="tech-track">
           <div class="tech-fill" style="width: 5%"></div>
-          <div class="tech-marker solar" style="left: 40%">☀️</div>
-          <div class="tech-marker fusion" style="left: 80%">⚛️</div>
+          <div class="tech-marker solar" style="left: 40%"><span class="tech-icon solar">S</span></div>
+          <div class="tech-marker fusion" style="left: 80%"><span class="tech-icon fusion">F</span></div>
         </div>
       </div>
     `;

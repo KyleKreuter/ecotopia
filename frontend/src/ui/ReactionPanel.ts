@@ -36,7 +36,7 @@ export class ReactionPanel {
   private renderReaction(r: CitizenReactionResponse): string {
     const deltaClass = r.approvalDelta >= 0 ? 'positive' : 'negative';
     const deltaStr = r.approvalDelta >= 0 ? `+${r.approvalDelta}` : `${r.approvalDelta}`;
-    const hasAudio = r.audioBase64 ? '🔊' : '';
+    const hasAudio = r.audioBase64 ? '<span class="audio-icon">&#9835;</span>' : '';
 
     const avatarKey = r.citizenName.toLowerCase();
     const glowClass = r.approvalDelta >= 0 ? 'positive' : 'negative';

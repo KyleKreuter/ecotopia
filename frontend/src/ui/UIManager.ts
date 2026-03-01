@@ -6,6 +6,8 @@ import { SpeechPanel } from './SpeechPanel.ts';
 import { PromisePanel } from './PromisePanel.ts';
 import { ContradictionAlert } from './ContradictionAlert.ts';
 import { ReactionPanel } from './ReactionPanel.ts';
+import { TutorialOverlay } from './TutorialOverlay.ts';
+import { gameState } from '../state/GameStateManager.ts';
 
 export class UIManager {
   private overlay: HTMLElement;
@@ -15,6 +17,7 @@ export class UIManager {
   private promisePanel: PromisePanel;
   private contradictionAlert: ContradictionAlert;
   private reactionPanel: ReactionPanel;
+  private tutorial: TutorialOverlay | null = null;
 
   constructor() {
     this.overlay = document.getElementById('ui-overlay')!;
@@ -27,6 +30,12 @@ export class UIManager {
     this.reactionPanel = new ReactionPanel(this.overlay);
 
     this.setupEventListeners();
+
+    if (gameState.getState().currentRound === 1) {
+      this.tutorial = new TutorialOverlay(this.overlay, () => {
+        this.tutorial = null;
+      });
+    }
   }
 
   private setupEventListeners(): void {

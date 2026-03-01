@@ -35,14 +35,17 @@ export class GameOverPanel {
     this.el.className = 'gameover-panel';
 
     const isVictory = state.status === 'WON' || state.status === 'VICTORY' || state.resultRank !== null;
-    const icon = isVictory ? '🏆' : '💀';
+    const iconBadge = isVictory
+      ? '<div class="go-icon-badge victory">V</div>'
+      : '<div class="go-icon-badge defeat">X</div>';
     const heading = isVictory ? 'Victory!' : 'Game Over';
 
     // Rank or defeat reason subtitle
     let subtitle = '';
     if (isVictory && state.resultRank) {
       const info = RANK_INFO[state.resultRank] ?? { title: state.resultRank, description: '' };
-      subtitle = `<div class="go-rank">${info.title}</div><div class="go-rank-desc">${info.description}</div>`;
+      const rankClass = `rank-${state.resultRank.toLowerCase()}`;
+      subtitle = `<div class="go-rank-badge ${rankClass}">${info.title}</div><div class="go-rank-desc">${info.description}</div>`;
     } else if (!isVictory && state.defeatReason) {
       const reason = DEFEAT_REASONS[state.defeatReason] ?? state.defeatReason;
       subtitle = `<div class="go-reason">${reason}</div>`;
@@ -62,7 +65,7 @@ export class GameOverPanel {
     ).join('');
 
     this.el.innerHTML = `
-      <div class="go-icon">${icon}</div>
+      ${iconBadge}
       <div class="result-title">${heading}</div>
       ${subtitle}
       <div class="go-round">Round ${state.currentRound} / 7</div>
