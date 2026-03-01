@@ -8,6 +8,7 @@ import eu.ecotopia.backend.game.model.Game;
 import eu.ecotopia.backend.promise.model.Promise;
 import eu.ecotopia.backend.promise.model.PromiseStatus;
 import eu.ecotopia.backend.round.model.GameRound;
+import eu.ecotopia.backend.speech.client.HuggingFaceClient;
 import eu.ecotopia.backend.speech.model.AiCitizenReactionsResponse;
 import eu.ecotopia.backend.speech.model.AiContradiction;
 import eu.ecotopia.backend.speech.model.AiExtractionResponse;
@@ -24,20 +25,29 @@ import java.util.stream.Collectors;
 
 /**
  * Service that generates in-character AI reactions for each citizen based on the player's speech.
- * Uses Spring AI ChatClient to communicate with the configured LLM provider.
+ * Uses HuggingFace custom endpoints when configured, falls back to Spring AI ChatClient.
  */
 @Slf4j
 @Service
 public class CitizenReactionService {
 
     private final ChatClient chatClient;
+    private final HuggingFaceClient hfClient;
     private final ObjectMapper objectMapper;
 
     @Value("${ecotopia.ai.citizen-model:}")
     private String citizenModel;
 
-    public CitizenReactionService(ChatClient.Builder chatClientBuilder, ObjectMapper objectMapper) {
+    @Value("${ecotopia.ai.citizen-endpoint:}")
+    private String citizenEndpoint;
+
+    @Value("${ecotopia.ai.hf-token:}")
+    private String hfToken;
+
+    public CitizenReactionService(ChatClient.Builder chatClientBuilder, HuggingFaceClient hfClient,
+                                   ObjectMapper objectMapper) {
         this.chatClient = chatClientBuilder.build();
+        this.hfClient = hfClient;
         this.objectMapper = objectMapper;
     }
 
@@ -57,15 +67,24 @@ public class CitizenReactionService {
         log.info("Generating citizen reactions for game {} round {}", game.getId(), game.getCurrentRound());
         log.debug("System prompt length: {} chars", systemPrompt.length());
 
-        var requestSpec = chatClient.prompt()
-                .system(systemPrompt)
-                .user(userPrompt);
+        String response;
 
-        if (citizenModel != null && !citizenModel.isBlank()) {
-            requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(citizenModel).build());
+        if (citizenEndpoint != null && !citizenEndpoint.isBlank()) {
+            // Use fine-tuned HuggingFace endpoint
+            log.info("Using HF citizen endpoint: {}", citizenEndpoint);
+            response = hfClient.chat(citizenEndpoint, hfToken, systemPrompt, userPrompt, 512, 0.7);
+        } else {
+            // Fallback to Spring AI ChatClient
+            var requestSpec = chatClient.prompt()
+                    .system(systemPrompt)
+                    .user(userPrompt);
+
+            if (citizenModel != null && !citizenModel.isBlank()) {
+                requestSpec = requestSpec.options(OpenAiChatOptions.builder().model(citizenModel).build());
+            }
+
+            response = requestSpec.call().content();
         }
-
-        String response = requestSpec.call().content();
 
         log.debug("Raw AI response for citizen reactions: {}", response);
 
