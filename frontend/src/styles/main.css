@@ -1095,143 +1095,210 @@ body {
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* DEMO POLISH - Larger fonts, no scroll, fitted layout */
+
+/* RESPONSIVE GAME LAYOUT */
+html, body {
+  font-size: 20px !important;
+}
+
+/* Resource Panel - responsive top bar */
 .resource-panel {
-  font-size: 22px !important;
-  padding: 12px 24px !important;
+  font-size: 1.2rem !important;
+  padding: 8px 16px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
 }
 
 .resource-panel .round-info {
-  font-size: 26px !important;
+  font-size: 1.4rem !important;
+  font-weight: bold;
 }
 
 .resource-bar .bar-label {
-  font-size: 20px !important;
+  font-size: 1.1rem !important;
+  min-width: 50px !important;
 }
 
 .resource-bar .bar-value {
-  font-size: 20px !important;
+  font-size: 1.1rem !important;
 }
 
 .resource-bar .bar-track {
-  width: 140px !important;
-  height: 18px !important;
+  width: 100px !important;
+  height: 14px !important;
 }
 
+.resource-panel .actions-info {
+  font-size: 1.1rem !important;
+}
+
+/* Citizen Panel - responsive sidebar */
 .citizen-panel {
-  min-width: 240px !important;
-  font-size: 18px !important;
-}
-
-.citizen-entry {
-  font-size: 18px !important;
-  padding: 6px 8px !important;
-}
-
-.citizen-name {
-  font-size: 18px !important;
-}
-
-.citizen-value {
-  font-size: 18px !important;
-}
-
-.citizen-avatar {
-  width: 36px !important;
-  height: 36px !important;
-}
-
-/* Reaction panel - no scroll, compact */
-.reaction-panel {
-  max-height: 45vh !important;
-  padding: 12px 20px !important;
+  min-width: 200px !important;
+  max-width: 260px !important;
+  font-size: 1rem !important;
+  max-height: calc(100vh - 60px) !important;
   overflow-y: auto !important;
 }
 
+.citizen-entry {
+  font-size: 1rem !important;
+  padding: 4px 6px !important;
+  margin-bottom: 4px !important;
+}
+
+.citizen-name {
+  font-size: 1rem !important;
+  min-width: 70px !important;
+}
+
+.citizen-value {
+  font-size: 1rem !important;
+}
+
+.citizen-avatar {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+/* Reaction panel - compact, no unnecessary scroll */
+.reaction-panel {
+  max-height: 40vh !important;
+  padding: 10px 16px !important;
+}
+
 .reaction-panel h3 {
-  font-size: 24px !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 8px !important;
 }
 
 .reaction-entry {
-  padding: 10px 12px !important;
-  margin-bottom: 6px !important;
+  padding: 8px 10px !important;
+  margin-bottom: 4px !important;
 }
 
 .reaction-name {
-  font-size: 20px !important;
+  font-size: 1.1rem !important;
 }
 
 .reaction-delta {
-  font-size: 20px !important;
+  font-size: 1.1rem !important;
 }
 
 .reaction-dialogue {
-  font-size: 18px !important;
+  font-size: 1rem !important;
 }
 
-/* Speech panel - larger */
+/* Speech panel */
 .speech-modal {
-  width: 600px !important;
+  width: min(600px, 90vw) !important;
 }
 
 .speech-modal h3 {
-  font-size: 28px !important;
+  font-size: 1.5rem !important;
 }
 
 .speech-modal textarea {
-  font-size: 22px !important;
-  height: 140px !important;
+  font-size: 1.2rem !important;
+  height: 120px !important;
 }
 
 .speech-context {
-  font-size: 18px !important;
+  font-size: 0.9rem !important;
 }
 
 .pixel-btn {
-  font-size: 20px !important;
-  padding: 12px 24px !important;
+  font-size: 1.1rem !important;
+  padding: 10px 20px !important;
 }
 
 .speech-modal .speech-submit {
-  font-size: 24px !important;
-  padding: 16px 48px !important;
+  font-size: 1.3rem !important;
+  padding: 14px 36px !important;
 }
 
-/* Round overlay - dramatic */
+/* Round overlay */
+.round-overlay {
+  background: rgba(10, 14, 26, 0.95) !important;
+}
+
 .round-overlay .round-text {
-  font-size: 48px !important;
+  font-size: 3rem !important;
+  color: #fff !important;
+  text-shadow: 0 0 20px rgba(52, 152, 219, 0.5) !important;
 }
 
 .round-overlay .round-sub {
-  font-size: 24px !important;
+  font-size: 1.3rem !important;
+  color: #888 !important;
 }
 
-/* Tile tooltip - larger */
+/* Tile tooltip */
 .tile-tooltip {
-  font-size: 24px !important;
-  padding: 8px 16px !important;
+  font-size: 1.3rem !important;
+  padding: 6px 12px !important;
+  background: rgba(26, 26, 46, 0.95) !important;
+  border-color: #0f3460 !important;
+  color: #e0e0e0 !important;
 }
 
 /* Promise panel */
 .promise-panel {
-  font-size: 18px !important;
+  font-size: 1rem !important;
+  max-width: 280px !important;
 }
 
-/* Tech tree larger */
+/* Tech tree */
 .tech-tree {
-  font-size: 18px !important;
+  font-size: 0.9rem !important;
 }
 
 .tech-track {
-  width: 180px !important;
-  height: 18px !important;
+  width: 120px !important;
+  height: 14px !important;
+  background: #0a0a1a !important;
+  border-color: #333 !important;
 }
 
-/* Tutorial - crisp */
+.tech-fill {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad) !important;
+}
+
+/* Tutorial */
 .tutorial-title {
-  font-size: 32px !important;
+  font-size: 1.8rem !important;
 }
 
 .tutorial-text {
-  font-size: 20px !important;
+  font-size: 1.1rem !important;
+}
+
+/* Small screens */
+@media (max-width: 1200px) {
+  .resource-panel .resources {
+    gap: 12px !important;
+  }
+  .resource-bar .bar-track {
+    width: 80px !important;
+  }
+  .citizen-panel {
+    min-width: 180px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .resource-panel {
+    padding: 6px 10px !important;
+    font-size: 0.9rem !important;
+  }
+  .citizen-panel {
+    min-width: 150px !important;
+    font-size: 0.85rem !important;
+  }
+  .resource-bar .bar-track {
+    width: 60px !important;
+  }
+  .speech-modal {
+    padding: 16px 20px !important;
+  }
 }
